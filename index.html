@@ -47,14 +47,16 @@
 
     <script>
         async function buscarResultado() {
-            let matricula = document.getElementById("matricula").value.toUpperCase();
+            let matricula = document.getElementById("matricula").value.toUpperCase().trim();
             let resultadoElemento = document.getElementById("resultado");
 
             try {
                 let response = await fetch("dados.json");
                 if (!response.ok) throw new Error("Erro ao carregar JSON");
                 let dados = await response.json();
-                let resultado = dados[matricula];
+
+                // Correção: procurar dentro do array de colaboradores
+                let resultado = dados.colaboradores.find(colab => colab.Matricula === matricula);
 
                 if (resultado) {
                     let nome = resultado.Nome || "Nome não disponível";
@@ -80,10 +82,10 @@
                         <strong>DPA:</strong> ${dpa} ${mensagem}
                     `;
                 } else {
-                    resultadoElemento.innerHTML = "Matrícula não encontrada.";
+                    resultadoElemento.innerHTML = "<span style='color: red; font-weight: bold;'>Matrícula não encontrada.</span>";
                 }
             } catch (error) {
-                resultadoElemento.innerHTML = "Erro ao carregar os dados.";
+                resultadoElemento.innerHTML = "<span style='color: red; font-weight: bold;'>Erro ao carregar os dados.</span>";
                 console.error("Erro:", error);
             }
         }
