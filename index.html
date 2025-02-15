@@ -22,27 +22,28 @@
                 let response = await fetch("dados.json");
                 
                 if (!response.ok) {
-                    throw new Error("Erro ao carregar JSON");
+                    throw new Error("Erro ao carregar JSON (404 - Não encontrado)");
                 }
 
                 let dados = await response.json();
 
-                if (dados[matricula]) {
+                if (dados.hasOwnProperty(matricula)) {
                     let etit = dados[matricula].ETIT || "N/A";
                     let assertividade = dados[matricula].Assertividade || "N/A";
                     let dpa = dados[matricula].DPA || "N/A";
 
                     resultadoElemento.innerHTML = `
+                        <strong>Matrícula:</strong> ${matricula} <br>
                         <strong>ETIT:</strong> ${etit} <br>
                         <strong>Assertividade:</strong> ${assertividade} <br>
                         <strong>DPA:</strong> ${dpa}
                     `;
                 } else {
-                    resultadoElemento.innerHTML = "Matrícula não encontrada.";
+                    resultadoElemento.innerHTML = "⚠️ Matrícula não encontrada. Verifique se digitou corretamente.";
                 }
             } catch (error) {
-                resultadoElemento.innerHTML = "Erro ao carregar os dados.";
-                console.error("Erro:", error);
+                resultadoElemento.innerHTML = "❌ Erro ao carregar os dados. Tente novamente mais tarde.";
+                console.error("Erro ao buscar JSON:", error);
             }
         }
     </script>
