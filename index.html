@@ -19,7 +19,12 @@
             let resultadoElemento = document.getElementById("resultado");
 
             try {
-                let response = await fetch("dados.json"); // Busca o JSON
+                let response = await fetch("dados.json");
+                
+                if (!response.ok) {
+                    throw new Error("Erro ao carregar JSON");
+                }
+
                 let dados = await response.json();
 
                 if (dados[matricula]) {
@@ -35,6 +40,7 @@
                 }
             } catch (error) {
                 resultadoElemento.innerHTML = "Erro ao carregar os dados.";
+                console.error("Erro:", error);
             }
         }
     </script>
