@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Resultados</title>
+</head>
+<body>
+    <h1>Consultar Resultados</h1>
+    <input type="email" id="email" placeholder="Digite seu e-mail">
+    <button onclick="buscarResultado()">Buscar</button>
+    <p id="resultado"></p>
+
+    <script>
+        async function buscarResultado() {
+            const email = document.getElementById('email').value;
+            const response = await fetch('dados.json'); 
+            const data = await response.json();
+            
+            const usuario = data.find(user => user.email === email);
+            
+            if (usuario) {
+                document.getElementById('resultado').innerText = `Olá, ${usuario.nome}! Seu resultado é: ${usuario.resultado}`;
+            } else {
+                document.getElementById('resultado').innerText = "E-mail não encontrado.";
+            }
+        }
+    </script>
+</body>
+</html>
