@@ -4,71 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Resultados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f8f9fa;
-            margin: 0;
         }
         .container {
-            background: white;
+            max-width: 400px;
+        }
+        .card {
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 350px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        input {
+        .btn-danger {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
         }
-        button {
+        .form-control {
             width: 100%;
-            padding: 10px;
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #c9302c;
-        }
-        .resultado {
-            margin-top: 20px;
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: left;
-        }
-        .alerta {
-            margin-top: 10px;
-            color: red;
-            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Consultar Resultados</h2>
-        <input type="text" id="matricula" placeholder="Digite sua matrícula">
-        <button onclick="buscarResultado()">Consultar</button>
-        <div id="resultado"></div>
+        <div class="card">
+            <h3 class="text-center">Consultar Resultados</h3>
+            <input type="text" id="matricula" class="form-control mb-3" placeholder="Digite sua matrícula">
+            <button class="btn btn-danger" onclick="buscarResultado()">Consultar</button>
+            <div id="resultado" class="mt-3 p-3 bg-light border rounded"></div>
+        </div>
     </div>
+
     <script>
         async function buscarResultado() {
             let matricula = document.getElementById("matricula").value.toUpperCase();
             let resultadoElemento = document.getElementById("resultado");
-            resultadoElemento.innerHTML = "";
             
             try {
                 let response = await fetch("dados.json");
@@ -78,36 +52,34 @@
 
                 let dados = await response.json();
                 let resultado = dados[matricula];
-                
+
                 if (resultado) {
                     let etit = resultado.ETIT || "N/A";
                     let assertividade = resultado.Assertividade || "N/A";
-                    let dpa = resultado.DPA ? resultado.DPA.replace('%', '') : "N/A";
-                    
+                    let dpa = resultado.DPA || "N/A";
                     let alerta = "";
+
                     if (dpa !== "N/A") {
                         let dpaValor = parseFloat(dpa);
                         if (dpaValor < 70) {
-                            alerta = "<p class='alerta'>⚠️ Sua DPA está bem abaixo da meta!</p>";
+                            alerta = "<p class='text-danger'><strong>⚠ Você está bem abaixo da meta de DPA (90%).</strong></p>";
                         } else if (dpaValor < 90) {
-                            alerta = "<p class='alerta'>⚠️ Sua DPA está abaixo da meta!</p>";
+                            alerta = "<p class='text-warning'><strong>⚠ Você está abaixo da meta de DPA (90%).</strong></p>";
                         }
                     }
-                    
+
                     resultadoElemento.innerHTML = `
-                        <div class="resultado">
-                            <strong>Matrícula:</strong> ${matricula} <br>
-                            <strong>ETIT:</strong> ${etit} <br>
-                            <strong>Assertividade:</strong> ${assertividade} <br>
-                            <strong>DPA:</strong> ${dpa}%
-                        </div>
+                        <strong>Matrícula:</strong> ${matricula} <br>
+                        <strong>ETIT:</strong> ${etit} <br>
+                        <strong>Assertividade:</strong> ${assertividade} <br>
+                        <strong>DPA:</strong> ${dpa}
                         ${alerta}
                     `;
                 } else {
-                    resultadoElemento.innerHTML = "<p class='alerta'>Matrícula não encontrada.</p>";
+                    resultadoElemento.innerHTML = "<p class='text-danger'><strong>Matrícula não encontrada.</strong></p>";
                 }
             } catch (error) {
-                resultadoElemento.innerHTML = "<p class='alerta'>Erro ao carregar os dados.</p>";
+                resultadoElemento.innerHTML = "<p class='text-danger'><strong>Erro ao carregar os dados.</strong></p>";
                 console.error("Erro:", error);
             }
         }
