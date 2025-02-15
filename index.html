@@ -30,10 +30,12 @@
                 if (dados[matricula]) {
                     let etit = dados[matricula].ETIT || "N/A";
                     let assertividade = dados[matricula].Assertividade || "N/A";
+                    let dpa = dados[matricula].DPA || "N/A";
 
                     resultadoElemento.innerHTML = `
                         <strong>ETIT:</strong> ${etit} <br>
-                        <strong>Assertividade:</strong> ${assertividade}
+                        <strong>Assertividade:</strong> ${assertividade} <br>
+                        <strong>DPA:</strong> ${dpa}
                     `;
                 } else {
                     resultadoElemento.innerHTML = "Matrícula não encontrada.";
