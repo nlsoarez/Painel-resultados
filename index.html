@@ -7,22 +7,22 @@
 </head>
 <body>
     <h1>Consultar Resultados</h1>
-    <input type="email" id="email" placeholder="Digite seu e-mail">
+    <input type="text" id="matricula" placeholder="Digite sua matrícula">
     <button onclick="buscarResultado()">Buscar</button>
     <p id="resultado"></p>
 
     <script>
         async function buscarResultado() {
-            const email = document.getElementById('email').value;
+            const matricula = document.getElementById('matricula').value.trim().toUpperCase();
             const response = await fetch('dados.json'); 
             const data = await response.json();
             
-            const usuario = data.find(user => user.email === email);
+            const usuario = data.find(user => user.matricula === matricula);
             
             if (usuario) {
-                document.getElementById('resultado').innerText = `Olá, ${usuario.nome}! Seu resultado é: ${usuario.resultado}`;
+                document.getElementById('resultado').innerText = `Sua nota foi: ${usuario.resultado}`;
             } else {
-                document.getElementById('resultado').innerText = "E-mail não encontrado.";
+                document.getElementById('resultado').innerText = "Matrícula não encontrada.";
             }
         }
     </script>
