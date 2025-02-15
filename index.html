@@ -14,72 +14,80 @@
             background-color: #f8f9fa;
         }
         .container {
-            max-width: 400px;
-        }
-        .card {
+            background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
         }
-        .btn-danger {
+        .logo {
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        .btn-consultar {
+            background-color: #d9534f;
+            color: white;
             width: 100%;
         }
-        .form-control {
-            width: 100%;
+        .btn-consultar:hover {
+            background-color: #c9302c;
+        }
+        .resultado {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: left;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <h3 class="text-center">Consultar Resultados</h3>
-            <input type="text" id="matricula" class="form-control mb-3" placeholder="Digite sua matrícula">
-            <button class="btn btn-danger" onclick="buscarResultado()">Consultar</button>
-            <div id="resultado" class="mt-3 p-3 bg-light border rounded"></div>
-        </div>
+        <img src="https://www.eventos.momentoeditorial.com.br/wp-content/uploads/2020/07/logo-Claro-800x600px.png" alt="Logo Claro" class="logo">
+        <h2><strong>Consultar Resultados</strong></h2>
+        <input type="text" id="matricula" class="form-control" placeholder="Digite sua matrícula">
+        <button class="btn btn-consultar mt-2" onclick="buscarResultado()">Consultar</button>
+        <div id="resultado" class="resultado d-none"></div>
     </div>
 
     <script>
         async function buscarResultado() {
             let matricula = document.getElementById("matricula").value.toUpperCase();
             let resultadoElemento = document.getElementById("resultado");
-            
+            resultadoElemento.classList.add("d-none");
             try {
                 let response = await fetch("dados.json");
-                if (!response.ok) {
-                    throw new Error("Erro ao carregar JSON");
-                }
-
+                if (!response.ok) throw new Error("Erro ao carregar JSON");
                 let dados = await response.json();
                 let resultado = dados[matricula];
-
                 if (resultado) {
                     let etit = resultado.ETIT || "N/A";
                     let assertividade = resultado.Assertividade || "N/A";
                     let dpa = resultado.DPA || "N/A";
-                    let alerta = "";
-
+                    let mensagem = "";
                     if (dpa !== "N/A") {
-                        let dpaValor = parseFloat(dpa);
-                        if (dpaValor < 70) {
-                            alerta = "<p class='text-danger'><strong>⚠ Você está bem abaixo da meta de DPA (90%).</strong></p>";
-                        } else if (dpaValor < 90) {
-                            alerta = "<p class='text-warning'><strong>⚠ Você está abaixo da meta de DPA (90%).</strong></p>";
+                        let valorDPA = parseFloat(dpa.replace('%', '').replace(',', '.'));
+                        if (valorDPA < 70) {
+                            mensagem = "<br><strong style='color: red;'>Atenção:</strong> Seu DPA está bem abaixo da meta de 90%.";
+                        } else if (valorDPA < 90) {
+                            mensagem = "<br><strong style='color: orange;'>Aviso:</strong> Seu DPA está abaixo da meta de 90%.";
                         }
                     }
-
                     resultadoElemento.innerHTML = `
                         <strong>Matrícula:</strong> ${matricula} <br>
                         <strong>ETIT:</strong> ${etit} <br>
                         <strong>Assertividade:</strong> ${assertividade} <br>
-                        <strong>DPA:</strong> ${dpa}
-                        ${alerta}
+                        <strong>DPA:</strong> ${dpa} ${mensagem}
                     `;
+                    resultadoElemento.classList.remove("d-none");
                 } else {
-                    resultadoElemento.innerHTML = "<p class='text-danger'><strong>Matrícula não encontrada.</strong></p>";
+                    resultadoElemento.innerHTML = "Matrícula não encontrada.";
+                    resultadoElemento.classList.remove("d-none");
                 }
             } catch (error) {
-                resultadoElemento.innerHTML = "<p class='text-danger'><strong>Erro ao carregar os dados.</strong></p>";
+                resultadoElemento.innerHTML = "Erro ao carregar os dados.";
+                resultadoElemento.classList.remove("d-none");
                 console.error("Erro:", error);
             }
         }
