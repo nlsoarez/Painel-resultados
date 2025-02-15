@@ -1,5 +1,5 @@
 {
-  "N6071740": { "ETIT": "84%", "Assertividade": "99%", "DPA": "113,47%" },
+  "N6071740": { "ETIT": "84%", "Assertividade": "99%", "DPA": "" },
   "F204763": { "ETIT": "87%", "Assertividade": "98%", "DPA": "83,86%" },
   "N6173067": { "ETIT": "83%", "Assertividade": "96%", "DPA": "82,92%" },
   "N5819183": { "ETIT": "89%", "Assertividade": "", "DPA": "86,41%" },
@@ -16,12 +16,15 @@
   "N5972428": { "ETIT": "67%", "Assertividade": "95%", "DPA": "105,53%" },
   "F160641": { "ETIT": "76%", "Assertividade": "86%", "DPA": "79,04%" },
   "N0239871": { "ETIT": "81%", "Assertividade": "94%", "DPA": "76,31%" },
-  "N5926003": { "ETIT": "79%", "Assertividade": "", "DPA": "XX,XX%" },
-  "N6173055": { "ETIT": "53%", "Assertividade": "94%", "DPA": "XX,XX%" },
+  "N5926003": { "ETIT": "79%", "Assertividade": "", "DPA": "" },
+  "N6173055": { "ETIT": "53%", "Assertividade": "94%", "DPA": "" },
   "N5922887": { "ETIT": "66%", "Assertividade": "", "DPA": "60,24%" },
   "N0189105": { "ETIT": "80%", "Assertividade": "", "DPA": "70,39%" },
   "N5923996": { "ETIT": "72%", "Assertividade": "91%", "DPA": "65,71%" },
-  "N4014011": { "ETIT": "XX%", "Assertividade": "XX%", "DPA": "67,91%" },
-  "N5619600": { "ETIT": "XX%", "Assertividade": "XX%", "DPA": "71,67%" },
-  "N6172207": { "ETIT": "XX%", "Assertividade": "XX%", "DPA": "88,35%" }
+  "N4014011": { "ETIT": "", "Assertividade": "", "DPA": "67,91%" },
+  "N5619600": { "ETIT": "", "Assertividade": "", "DPA": "71,67%" },
+  "N0238475": { "ETIT": "", "Assertividade": "", "DPA": "98,93%" },
+  "N5923221": { "ETIT": "", "Assertividade": "", "DPA": "81,73%" },
+  "N6088107": { "ETIT": "", "Assertividade": "", "DPA": "77,19%" },
+  "N6172207": { "ETIT": "", "Assertividade": "", "DPA": "88,35%" }
 }
