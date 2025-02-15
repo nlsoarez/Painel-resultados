@@ -3,26 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultar Resultados</title>
+    <title>Consulta de Resultados</title>
 </head>
 <body>
-    <h1>Consultar Resultados</h1>
+    <h2>Consultar Resultados</h2>
     <input type="text" id="matricula" placeholder="Digite sua matrícula">
-    <button onclick="buscarResultado()">Buscar</button>
+    <button onclick="buscarResultado()">Consultar</button>
+
+    <h3>Resultado:</h3>
     <p id="resultado"></p>
 
     <script>
         async function buscarResultado() {
-            const matricula = document.getElementById('matricula').value.trim().toUpperCase();
-            const response = await fetch('dados.json'); 
-            const data = await response.json();
-            
-            const usuario = data.find(user => user.matricula === matricula);
-            
-            if (usuario) {
-                document.getElementById('resultado').innerText = `Sua nota foi: ${usuario.resultado}`;
-            } else {
-                document.getElementById('resultado').innerText = "Matrícula não encontrada.";
+            let matricula = document.getElementById("matricula").value.toUpperCase();
+            let resultadoElemento = document.getElementById("resultado");
+
+            try {
+                let response = await fetch("dados.json"); // Busca o JSON
+                let dados = await response.json();
+
+                if (dados[matricula]) {
+                    let etit = dados[matricula].ETIT || "N/A";
+                    let assertividade = dados[matricula].Assertividade || "N/A";
+
+                    resultadoElemento.innerHTML = `
+                        <strong>ETIT:</strong> ${etit} <br>
+                        <strong>Assertividade:</strong> ${assertividade}
+                    `;
+                } else {
+                    resultadoElemento.innerHTML = "Matrícula não encontrada.";
+                }
+            } catch (error) {
+                resultadoElemento.innerHTML = "Erro ao carregar os dados.";
             }
         }
     </script>
