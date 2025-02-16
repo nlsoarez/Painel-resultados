@@ -12,6 +12,7 @@
             align-items: center;
             height: 100vh;
             background-color: #f8f9fa;
+            flex-direction: column;
         }
         .container {
             background: white;
@@ -34,6 +35,11 @@
             background-color: #c9302c;
             border-color: #ac2925;
         }
+        .atualizacao {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -43,19 +49,18 @@
         <input type="text" id="matricula" class="form-control mb-2" placeholder="Digite sua matrícula">
         <button class="btn btn-red w-100" onclick="buscarResultado()">Consultar</button>
         <div id="resultado" class="mt-3 p-3 bg-light border rounded"></div>
+        <div class="atualizacao">Última atualização: 13/02</div>
     </div>
 
     <script>
         async function buscarResultado() {
-            let matricula = document.getElementById("matricula").value.toUpperCase().trim();
+            let matricula = document.getElementById("matricula").value.toUpperCase();
             let resultadoElemento = document.getElementById("resultado");
 
             try {
                 let response = await fetch("dados.json");
                 if (!response.ok) throw new Error("Erro ao carregar JSON");
                 let dados = await response.json();
-
-                // Correção: procurar dentro do array de colaboradores
                 let resultado = dados.colaboradores.find(colab => colab.Matricula === matricula);
 
                 if (resultado) {
@@ -82,10 +87,10 @@
                         <strong>DPA:</strong> ${dpa} ${mensagem}
                     `;
                 } else {
-                    resultadoElemento.innerHTML = "<span style='color: red; font-weight: bold;'>Matrícula não encontrada.</span>";
+                    resultadoElemento.innerHTML = "Matrícula não encontrada.";
                 }
             } catch (error) {
-                resultadoElemento.innerHTML = "<span style='color: red; font-weight: bold;'>Erro ao carregar os dados.</span>";
+                resultadoElemento.innerHTML = "Erro ao carregar os dados.";
                 console.error("Erro:", error);
             }
         }
