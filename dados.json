@@ -1,4 +1,18 @@
 {
+  "metas": {
+    "ETIT": {
+      "Residencial e Empresarial": 85,
+      "Móvel": 80
+    },
+    "Assertividade": {
+      "Residencial": 98,
+      "Móvel": 85
+    },
+    "DPA": {
+      "Móvel": 90,
+      "Residencial e Empresarial": 90
+    }
+  },
   "colaboradores": [
     {"Matricula": "F204763", "Nome": "RODRIGO REIS DUARTE", "ETIT": "98%", "Assertividade": "96%", "DPA": "92,76%"},
     {"Matricula": "N6104793", "Nome": "BRUNO MARIANO VILACA", "ETIT": "82%", "Assertividade": "98%", "DPA": "84,61%"},
