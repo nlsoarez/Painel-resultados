@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
@@ -52,10 +52,29 @@
         <div class="atualizacao">Última atualização: 16/02</div>
     </div>
 
+    <!-- Modal para exibir indicadores e metas -->
+    <div class="modal fade" id="indicadoresModal" tabindex="-1" aria-labelledby="indicadoresModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="indicadoresModalLabel">Indicadores e Metas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ETIT:</strong> 85% (Residencial/Empresarial), 80% (Móvel)</p>
+                    <p><strong>Assertividade:</strong> 98% (Residencial), 85% (Móvel)</p>
+                    <p><strong>DPA:</strong> 90% (todos)</p>
+                    <div id="certificacaoMensagem" class="mt-2 fw-bold text-danger"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function buscarResultado() {
             let matricula = document.getElementById("matricula").value.toUpperCase();
             let resultadoElemento = document.getElementById("resultado");
+            let certificacaoMensagem = document.getElementById("certificacaoMensagem");
 
             try {
                 let response = await fetch("dados.json");
@@ -69,15 +88,19 @@
                     let assertividade = resultado.Assertividade || "N/A";
                     let dpa = resultado.DPA || "N/A";
                     let mensagem = "";
+                    let abaixoMeta = false;
 
+                    // Verificar apenas o DPA
                     if (dpa !== "N/A") {
                         let dpaValor = parseFloat(dpa.replace('%', ''));
-                        if (dpaValor < 70) {
-                            mensagem = "<br><span style='color: red; font-weight: bold;'>Atenção: Seu DPA está muito abaixo da meta!</span>";
-                        } else if (dpaValor < 90) {
+                        if (dpaValor < 90) {
                             mensagem = "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu DPA está abaixo da meta!</span>";
+                            abaixoMeta = true;
                         }
                     }
+
+                    // Mensagem sobre certificação (apenas se o DPA estiver abaixo)
+                    certificacaoMensagem.innerHTML = abaixoMeta ? "Se algum dos indicadores estiver abaixo da meta, você não estará qualificado como Analista Certificado." : "";
 
                     resultadoElemento.innerHTML = `
                         <strong>Matrícula:</strong> ${matricula} <br>
@@ -86,6 +109,10 @@
                         <strong>Assertividade:</strong> ${assertividade} <br>
                         <strong>DPA:</strong> ${dpa} ${mensagem}
                     `;
+
+                    // Abrir o modal
+                    let modal = new bootstrap.Modal(document.getElementById('indicadoresModal'));
+                    modal.show();
                 } else {
                     resultadoElemento.innerHTML = "Matrícula não encontrada.";
                 }
@@ -95,5 +122,7 @@
             }
         }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
