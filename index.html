@@ -1,17 +1,56 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento de Indicadores</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Monitoramento de Indicadores</h1>
-        <button id="verificar">Verificar Indicadores</button>
-        <div id="resultado" class="resultado-container"></div>
+        <img src="https://www.eventos.momentoeditorial.com.br/wp-content/uploads/2020/07/logo-Claro-800x600px.png" alt="Logo Claro" class="logo">
+        <h2 class="mb-3">Consultar Resultados</h2>
+        <input type="text" id="matricula" class="form-control mb-2" placeholder="Digite sua matrícula">
+        <button class="btn btn-red w-100" onclick="buscarResultado()">Consultar</button>
+        <div id="resultado" class="mt-3 p-3 bg-light border rounded"></div>
+        <div class="atualizacao">Última atualização: 16/02</div>
     </div>
-    <script src="index.js"></script>
+
+    <script>
+        async function buscarResultado() {
+            let matricula = document.getElementById("matricula").value.toUpperCase();
+            let resultadoElemento = document.getElementById("resultado");
+
+            try {
+                let response = await fetch("dados.json");
+                if (!response.ok) throw new Error("Erro ao carregar JSON");
+                let dados = await response.json();
+                let resultado = dados.colaboradores.find(colab => colab.Matricula === matricula);
+
+                if (resultado) {
+                    let nome = resultado.Nome || "Nome não disponível";
+                    let etit = resultado.ETIT || "N/A";
+                    let assertividade = resultado.Assertividade || "N/A";
+                    let dpa = resultado.DPA || "N/A";
+                    let mensagem = "";
+
+                    if (dpa !== "N/A") {
+                        let dpaValor = parseFloat(dpa.replace('%', ''));
+                        if (dpaValor < 70) {
+                            mensagem = "<br><span style='color: red; font-weight: bold;'>Atenção: Seu DPA está muito abaixo da meta!</span>";
+                        } else if (dpaValor < 90) {
+                            mensagem = "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu DPA está abaixo da meta!</span>";
+                        }
+                    }
+
+                    resultadoElemento.innerHTML = `
+                        <strong>Matrícula:</strong> ${matricula} <br>
+                        <strong>Nome:</strong> ${nome} <br>
+                        <strong>ETIT:</strong> ${etit} <br>
+                        <strong>Assertividade:</strong> ${assertividade} <br>
+                        <strong>DPA:</strong> ${dpa} ${mensagem}
+                    `;
+                } else {
+                    resultadoElemento.innerHTML = "Matrícula não encontrada.";
+                }
+            } catch (error) {
+                resultadoElemento.innerHTML = "Erro ao carregar os dados.";
+                console.error("Erro:", error);
+            }
+        }
+    </script>
 </body>
 </html>
