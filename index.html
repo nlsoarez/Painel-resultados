@@ -99,29 +99,11 @@
                         } else if (dpaValor < 90) {
                             mensagem += "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu DPA está abaixo da meta!</span>";
                             abaixoMeta = true;
+                    
                         }
-                    }
-
-                    // Verificar ETIT
-                    if (etit !== "N/A") {
-                        let etitValor = parseFloat(etit.replace('%', ''));
-                        if (etitValor < 85) {
-                            mensagem += "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu ETIT está abaixo da meta!</span>";
-                            abaixoMeta = true;
-                        }
-                    }
-
-                    // Verificar Assertividade
-                    if (assertividade !== "N/A") {
-                        let assertividadeValor = parseFloat(assertividade.replace('%', ''));
-                        if (assertividadeValor < 98) {
-                            mensagem += "<br><span style='color: orange; font-weight: bold;'>Atenção: Sua Assertividade está abaixo da meta!</span>";
-                            abaixoMeta = true;
-                        }
-                    }
 
                     // Mensagem sobre certificação
-                    certificacaoMensagem.innerHTML = abaixoMeta ? "Você não está certificando no Analista Certificado." : "";
+                    certificacaoMensagem.innerHTML = abaixoMeta ? "CERTIFIQUE QUE ESTEJA DENTRO DA META PARA ESTEJA CERTIFICANDO" : "";
 
                     resultadoElemento.innerHTML = `
                         <strong>Matrícula:</strong> ${matricula} <br>
