@@ -1,8 +1,8 @@
 document.getElementById("verificar").addEventListener("click", () => {
     fetch("dados.json")
         .then(response => response.json())
-        .then(dados => verificarIndicadores(dados))
-        .catch(error => console.error("Erro ao carregar os dados:", error));
+        .then(data => verificarIndicadores(data))
+        .catch(error => console.error("Erro ao carregar JSON:", error));
 });
 
 function verificarIndicadores(dados) {
@@ -12,26 +12,34 @@ function verificarIndicadores(dados) {
         "Empresarial": { ETIT: 85, Assertividade: null, DPA: 90 }
     };
 
-    let resultadoHTML = "<h2>Colaboradores abaixo da meta:</h2>";
+    let resultadoHTML = "<h3>Colaboradores abaixo da meta:</h3>";
+    let encontrou = false;
 
     dados.forEach(colaborador => {
-        let alertas = [];
-        const setorMeta = metas[colaborador.Setor];
+        let setor = colaborador.Setor;
+        let abaixoMeta = [];
 
-        if (colaborador.ETIT !== "-" && parseFloat(colaborador.ETIT) < setorMeta.ETIT) {
-            alertas.push(`ETIT (${colaborador.ETIT}%)`);
-        }
-        if (colaborador.Assertividade !== "-" && setorMeta.Assertividade !== null && parseFloat(colaborador.Assertividade) < setorMeta.Assertividade) {
-            alertas.push(`Assertividade (${colaborador.Assertividade}%)`);
-        }
-        if (colaborador.DPA !== "-" && parseFloat(colaborador.DPA) < setorMeta.DPA) {
-            alertas.push(`DPA (${colaborador.DPA}%)`);
+        if (colaborador.ETIT !== "-" && parseInt(colaborador.ETIT) < metas[setor].ETIT) {
+            abaixoMeta.push(`ETIT: ${colaborador.ETIT}%`);
         }
 
-        if (alertas.length > 0) {
-            resultadoHTML += `<p><strong>${colaborador.Nome} (${colaborador.Setor})</strong>: ${alertas.join(", ")}</p>`;
+        if (colaborador.Assertividade !== "-" && metas[setor].Assertividade !== null && parseInt(colaborador.Assertividade) < metas[setor].Assertividade) {
+            abaixoMeta.push(`Assertividade: ${colaborador.Assertividade}%`);
+        }
+
+        if (colaborador.DPA !== "-" && parseInt(colaborador.DPA) < metas[setor].DPA) {
+            abaixoMeta.push(`DPA: ${colaborador.DPA}%`);
+        }
+
+        if (abaixoMeta.length > 0) {
+            encontrou = true;
+            resultadoHTML += `<p><strong>${colaborador.Nome}</strong> (${setor}): ${abaixoMeta.join(", ")}</p>`;
         }
     });
+
+    if (!encontrou) {
+        resultadoHTML = "<h3>Todos os colaboradores estão dentro da meta! ✅</h3>";
+    }
 
     document.getElementById("resultado").innerHTML = resultadoHTML;
 }
