@@ -1,19 +1,16 @@
-{
-  "metas": {
-    "ETIT": {
-      "Residencial e Empresarial": 85,
-      "Móvel": 80
-    },
-    "Assertividade": {
-      "Residencial": 98,
-      "Móvel": 85
-    },
-    "DPA": {
-      "Móvel": 90,
-      "Residencial e Empresarial": 90
-    }
-  },
-  "colaboradores": [
+import json
+
+# Metas estabelecidas
+metas = {
+    "ETIT_Residencial_Empresarial": 85,
+    "ETIT_Movel": 80,
+    "Assertividade_Residencial": 98,
+    "Assertividade_Movel": 85,
+    "DPA": 90
+}
+
+# Lista completa de colaboradores
+colaboradores = [
     {"Matricula": "F204763", "Nome": "RODRIGO REIS DUARTE", "ETIT": "98%", "Assertividade": "96%", "DPA": "92,76%"},
     {"Matricula": "N6104793", "Nome": "BRUNO MARIANO VILACA", "ETIT": "82%", "Assertividade": "98%", "DPA": "84,61%"},
     {"Matricula": "N6071740", "Nome": "THIAGO BARBOZA DOS SANTOS", "ETIT": "100%", "Assertividade": "100%", "DPA": "-"},
@@ -36,6 +33,34 @@
     {"Matricula": "N6173055", "Nome": "JEFFERSON LUIS GONÇALVES COITINHO", "ETIT": "67%", "Assertividade": "90%", "DPA": "-"},
     {"Matricula": "N5922887", "Nome": "ROMULO BARBOSA NICOLAE", "ETIT": "53%", "Assertividade": "-", "DPA": "69,47%"},
     {"Matricula": "N0189105", "Nome": "IGOR MARCELINO DE MARINS", "ETIT": "83%", "Assertividade": "-", "DPA": "77,99%"},
-    {"Matricula": "N5932090", "Nome": "EVILÁZIO ANDRÉ DE MAGALHÃES GOMES PEREIRA", "ETIT": "67%", "Assertividade": "91%", "DPA": "84,30%"}
-  ]
-}
+    {"Matricula": "N5932090", "Nome": "EVILÁZIO ANDRÉ DE MAGALHÃES GOMES PEREIRA", "ETIT": "67%", "Assertividade": "91%", "DPA": "84,30%"},
+    {"Matricula": "N0238475", "Nome": "MARLEY MARQUES RIBEIRO", "ETIT": "-", "Assertividade": "-", "DPA": "96,07%"},
+    {"Matricula": "N5923221", "Nome": "KELLY PINHEIRO LIRA", "ETIT": "-", "Assertividade": "-", "DPA": "94,55%"},
+    {"Matricula": "N6088107", "Nome": "LEANDRO GONÇALVES DE CARVALHO", "ETIT": "-", "Assertividade": "-", "DPA": "84,42%"},
+    {"Matricula": "N6172207", "Nome": "CHARLES DOS SANTOS PAIVA", "ETIT": "-", "Assertividade": "-", "DPA": "83,17%"},
+    {"Matricula": "N5619600", "Nome": "BRUNO COSTA BUCARD", "ETIT": "-", "Assertividade": "-", "DPA": "82,49%"}
+]
+
+# Função para verificar certificação
+def esta_certificado(valor, meta):
+    if valor == "-" or valor.strip() == "":  # Se não houver valor, considerar não certificado
+        return "Não Certificado"
+    
+    # Removendo "%" e convertendo para float
+    valor = float(valor.replace("%", "").replace(",", "."))  # Substitui vírgula por ponto para conversão correta
+    
+    return "Certificado" if valor >= meta else "Não Certificado"
+
+# Processando os colaboradores
+for colaborador in colaboradores:
+    etit_meta = metas["ETIT_Residencial_Empresarial"] if colaborador["ETIT"] != "-" else None
+    assertividade_meta = metas["Assertividade_Residencial"] if colaborador["Assertividade"] != "-" else None
+    dpa_meta = metas["DPA"] if colaborador["DPA"] != "-" else None
+    
+    colaborador["ETIT_Certificado"] = esta_certificado(colaborador["ETIT"], etit_meta) if etit_meta else "Não Certificado"
+    colaborador["Assertividade_Certificado"] = esta_certificado(colaborador["Assertividade"], assertividade_meta) if assertividade_meta else "Não Certificado"
+    colaborador["DPA_Certificado"] = esta_certificado(colaborador["DPA"], dpa_meta) if dpa_meta else "Não Certificado"
+
+# Convertendo para JSON formatado
+json_resultado = json.dumps(colaboradores, indent=4, ensure_ascii=False)
+print(json_resultado)
