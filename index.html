@@ -53,6 +53,12 @@
     </div>
 
     <script>
+        const metas = {
+            ETIT: { Residencial: 85, Empresarial: 85, Móvel: 80 },
+            Assertividade: { Residencial: 98, Móvel: 85 },
+            DPA: { Residencial: 90, Empresarial: 90, Móvel: 90 }
+        };
+
         async function buscarResultado() {
             let matricula = document.getElementById("matricula").value.toUpperCase();
             let resultadoElemento = document.getElementById("resultado");
@@ -61,30 +67,46 @@
                 let response = await fetch("dados.json");
                 if (!response.ok) throw new Error("Erro ao carregar JSON");
                 let dados = await response.json();
-                let resultado = dados.colaboradores.find(colab => colab.Matricula === matricula);
+                let resultado = null;
+                
+                for (let area in dados) {
+                    resultado = dados[area].find(colab => colab.Matricula === matricula);
+                    if (resultado) break;
+                }
 
                 if (resultado) {
                     let nome = resultado.Nome || "Nome não disponível";
-                    let etit = resultado.ETIT || "N/A";
-                    let assertividade = resultado.Assertividade || "N/A";
-                    let dpa = resultado.DPA || "N/A";
-                    let mensagem = "";
+                    let etit = parseFloat(resultado.ETIT?.replace('%', '')) || null;
+                    let assertividade = parseFloat(resultado.Assertividade?.replace('%', '')) || null;
+                    let dpa = parseFloat(resultado.DPA?.replace('%', '')) || null;
+                    let certificando = true;
+                    let falhas = [];
 
-                    if (dpa !== "N/A") {
-                        let dpaValor = parseFloat(dpa.replace('%', ''));
-                        if (dpaValor < 70) {
-                            mensagem = "<br><span style='color: red; font-weight: bold;'>Atenção: Seu DPA está muito abaixo da meta!</span>";
-                        } else if (dpaValor < 90) {
-                            mensagem = "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu DPA está abaixo da meta!</span>";
-                        }
+                    if (etit !== null && etit < metas.ETIT[resultado.Area]) {
+                        falhas.push(`ETIT abaixo da meta (${etit}%)`);
+                        certificando = false;
                     }
+                    if (assertividade !== null && assertividade < metas.Assertividade[resultado.Area]) {
+                        falhas.push(`Assertividade abaixo da meta (${assertividade}%)`);
+                        certificando = false;
+                    }
+                    if (dpa !== null && dpa < metas.DPA[resultado.Area]) {
+                        falhas.push(`DPA abaixo da meta (${dpa}%)`);
+                        certificando = false;
+                    }
+
+                    let mensagem = certificando 
+                        ? `<span style='color: green; font-weight: bold;'>Você está certificando!</span>`
+                        : `<span style='color: red; font-weight: bold;'>Você não está certificando pois seu ${falhas.join(', ')}.</span>`;
 
                     resultadoElemento.innerHTML = `
                         <strong>Matrícula:</strong> ${matricula} <br>
                         <strong>Nome:</strong> ${nome} <br>
-                        <strong>ETIT:</strong> ${etit} <br>
-                        <strong>Assertividade:</strong> ${assertividade} <br>
-                        <strong>DPA:</strong> ${dpa} ${mensagem}
+                        <strong>Área:</strong> ${resultado.Area} <br>
+                        <strong>ETIT:</strong> ${etit !== null ? etit + '%' : 'N/A'} <br>
+                        <strong>Assertividade:</strong> ${assertividade !== null ? assertividade + '%' : 'N/A'} <br>
+                        <strong>DPA:</strong> ${dpa !== null ? dpa + '%' : 'N/A'} <br>
+                        ${mensagem}
                     `;
                 } else {
                     resultadoElemento.innerHTML = "Matrícula não encontrada.";
