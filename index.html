@@ -70,12 +70,29 @@
                     let dpa = resultado.DPA || "N/A";
                     let mensagem = "";
 
+                    // Mensagem sobre DPA
                     if (dpa !== "N/A") {
                         let dpaValor = parseFloat(dpa.replace('%', ''));
                         if (dpaValor < 70) {
-                            mensagem = "<br><span style='color: red; font-weight: bold;'>Atenção: Seu DPA está muito abaixo da meta!</span>";
+                            mensagem += "<br><span style='color: red; font-weight: bold;'>Atenção: Seu DPA está muito abaixo da meta!</span>";
                         } else if (dpaValor < 90) {
-                            mensagem = "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu DPA está abaixo da meta!</span>";
+                            mensagem += "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu DPA está abaixo da meta!</span>";
+                        }
+                    }
+
+                    // Mensagem sobre ETIT
+                    if (etit !== "N/A") {
+                        let etitValor = parseFloat(etit.replace('%', ''));
+                        if (etitValor < 85) {
+                            mensagem += "<br><span style='color: orange; font-weight: bold;'>Atenção: Seu ETIT está abaixo da meta!</span>";
+                        }
+                    }
+
+                    // Mensagem sobre Assertividade
+                    if (assertividade !== "N/A") {
+                        let assertividadeValor = parseFloat(assertividade.replace('%', ''));
+                        if (assertividadeValor < 98) {
+                            mensagem += "<br><span style='color: orange; font-weight: bold;'>Atenção: Sua Assertividade está abaixo da meta!</span>";
                         }
                     }
 
