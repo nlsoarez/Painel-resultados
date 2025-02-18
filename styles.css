@@ -13,12 +13,6 @@ body {
     display: inline-block;
 }
 
-input {
-    padding: 10px;
-    margin: 10px 0;
-    width: 200px;
-}
-
 button {
     padding: 10px 15px;
     background: #007bff;
@@ -35,4 +29,5 @@ button:hover {
 .resultado-container {
     margin-top: 20px;
     font-size: 18px;
+    text-align: left;
 }
