@@ -1,38 +1,62 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    text-align: center;
-    padding: 50px;
+    background-color: #f8f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
 .container {
     background: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    display: inline-block;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 350px;
+}
+
+.logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 22px;
+    margin-bottom: 15px;
 }
 
 input {
+    width: 90%;
     padding: 10px;
-    margin: 10px 0;
-    width: 200px;
-}
-
-button {
-    padding: 10px 15px;
-    background: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
     border-radius: 5px;
 }
 
-button:hover {
-    background: #0056b3;
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-.resultado-container {
-    margin-top: 20px;
-    font-size: 18px;
+button:hover {
+    background-color: #b71c1c;
+}
+
+#resultado {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.atualizacao {
+    font-size: 12px;
+    color: gray;
+    margin-top: 10px;
 }
