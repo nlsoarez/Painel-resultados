@@ -1,5 +1,5 @@
-const employees = [ 
-    { Matricula: "F204763", Nome: "RODRIGO REIS DUARTE", Setor: "Móvel", ETIT: "98%", Assertividade: "96%", DPA: "92,76%" },
+const employees = [
+  { Matricula: "F204763", Nome: "RODRIGO REIS DUARTE", Setor: "Móvel", ETIT: "98%", Assertividade: "96%", DPA: "92,76%" },
   { Matricula: "N6104793", Nome: "BRUNO MARIANO VILACA", Setor: "Móvel", ETIT: "82%", Assertividade: "98%", DPA: "84,61%" },
   { Matricula: "N6071740", Nome: "THIAGO BARBOZA DOS SANTOS", Setor: "Móvel", ETIT: "100%", Assertividade: "100%", DPA: "-" },
   { Matricula: "N6173067", Nome: "JULIANA RIBEIRO GALHÃO", Setor: "Móvel", ETIT: "93%", Assertividade: "98%", DPA: "84,20%" },
@@ -28,14 +28,41 @@ const employees = [
   { Matricula: "N5923221", Nome: "KELLY PINHEIRO LIRA", Setor: "Residencial", ETIT: "-", Assertividade: "-", DPA: "94,55%" }
 ];
 
-function formatarValor(valor, meta) {
-    if (valor === "-" || valor === "Não informado") {
-        return `<span style="color: gray;">${valor}</span>`;
+function definirMeta(setor, tipo) {
+    const metas = {
+        "ETIT Móvel": 80,
+        "ETIT Residencial e Empresarial": 85,
+        "Assertividade Móvel": 85,
+        "Assertividade Residencial": 98,
+        "DPA": 90
+    };
+
+    if (tipo === "ETIT") {
+        return setor === "Móvel" ? metas["ETIT Móvel"] : metas["ETIT Residencial e Empresarial"];
     }
+    if (tipo === "Assertividade") {
+        return setor === "Móvel" ? metas["Assertividade Móvel"] : metas["Assertividade Residencial"];
+    }
+    return metas["DPA"];
+}
+
+function considerarDentroMeta(valor, setor, tipo) {
+    if (valor === "-" || valor === "Não informado") {
+        return true; 
+    }
+
     const valorNumerico = parseFloat(valor.replace("%", ""));
-    return valorNumerico >= meta ? 
-        `<span style="color: green; font-weight: bold;">${valor}</span>` : 
-        `<span style="color: red; font-weight: bold;">${valor}</span>`;
+    return valorNumerico >= definirMeta(setor, tipo);
+}
+
+function formatarValor(valor, setor, tipo) {
+    if (valor === "-" || valor === "Não informado") {
+        return "-";
+    }
+
+    const valorNumerico = parseFloat(valor.replace("%", ""));
+    const dentroDaMeta = valorNumerico >= definirMeta(setor, tipo);
+    return dentroDaMeta ? `<span style="color: green;">${valor}</span>` : `<span style="color: red;">${valor}</span>`;
 }
 
 function consultar() {
@@ -50,12 +77,21 @@ function consultar() {
     const empregado = employees.find(emp => emp.Matricula === matriculaInput);
 
     if (empregado) {
+        const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
+        const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
+        const dpaOk = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA");
+
+        const certificacaoMsg = etitOk && assertividadeOk && dpaOk ? 
+            `<p style="color: green; font-weight: bold;">Você está certificando ✅</p>` : 
+            `<p style="color: red; font-weight: bold;">Você não está certificando ❌</p>`;
+
         resultadoDiv.innerHTML = `
             <p><strong>Nome:</strong> ${empregado.Nome}</p>
             <p><strong>Setor:</strong> ${empregado.Setor}</p>
-            <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, 85)}</p>
-            <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, 98)}</p>
-            <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, 90)}</p>
+            <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")}</p>
+            <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")}</p>
+            <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA")}</p>
+            ${certificacaoMsg}
         `;
     } else {
         resultadoDiv.innerHTML = "<p style='color: red;'>Matrícula não encontrada.</p>";
