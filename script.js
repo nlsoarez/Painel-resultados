@@ -1,6 +1,6 @@
 const employees = [
   { Matricula: "F204763", Nome: "RODRIGO REIS DUARTE", Setor: "Móvel", ETIT: "98%", Assertividade: "96%", DPA: "92,76%" },
-  { Matricula: "N6104793", Nome: "BRUNO MARIANO VILACA", Setor: "Móvel", ETIT: "82%", Assertividade: "98%", DPA: "84,61%" },
+  { Matricula: "N6104793", Nome: "BRUNO MARIANO VILACA", Setor: "Móvel", ETIT: "82%", Assertividade: "98%", DPA: "85%" },
   { Matricula: "N6071740", Nome: "THIAGO BARBOZA DOS SANTOS", Setor: "Móvel", ETIT: "100%", Assertividade: "100%", DPA: "-" },
   { Matricula: "N6173067", Nome: "JULIANA RIBEIRO GALHÃO", Setor: "Móvel", ETIT: "93%", Assertividade: "98%", DPA: "84,20%" },
   { Matricula: "N6172207", Nome: "CHARLES DOS SANTOS PAIVA", Setor: "Móvel", ETIT: "-", Assertividade: "-", DPA: "83,17%" },
