@@ -25,7 +25,7 @@ const employees = [
   { "Matricula": "N4014011", "Nome": "ALAN MARINHO DIAS", "Setor": "Residencial", "ETIT": "68%", "Assertividade": "93%", "DPA": "74%" },
   { "Matricula": "N5923996", "Nome": "JULIO CESAR SANTOS SOARES", "Setor": "Residencial", "ETIT": "100%", "Assertividade": "50%", "DPA": "66%" },
   { "Matricula": "N5922887", "Nome": "ROMULO BARBOSA NICOLAE", "Setor": "Empresarial", "ETIT": "55%", "Assertividade": "-", "DPA": "65%" },
-  { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "Empresarial", "ETIT": "-", "Assertividade": "-", "DPA": "79%" }
+  { "Matricula": "N5922887", "Nome": "ROMULO BARBOSA NICOLAE", "Setor": "Empresarial", "ETIT": "55%", "Assertividade": "-", "DPA": "65%" },
   { "Matricula": "N6071740", "Nome": "THIAGO BARBOZA DOS SANTOS", "Setor": "Móvel", "ETIT": "100%", "Assertividade": "100%", "DPA": "-" }
 ];
 
