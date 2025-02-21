@@ -21,9 +21,11 @@ const employees = [
   { "Matricula": "N6104793", "Nome": "BRUNO MARIANO VILACA", "Setor": "Móvel", "ETIT": "82%", "Assertividade": "98%", "DPA": "79%" },
   { "Matricula": "N6173055", "Nome": "JEFFERSON LUIS GONÇALVES COITINHO", "Setor": "Residencial", "ETIT": "68%", "Assertividade": "83%", "DPA": "-" },
   { "Matricula": "N5619600", "Nome": "BRUNO COSTA BUCARD", "Setor": "Empresarial", "ETIT": "-", "Assertividade": "-", "DPA": "78%" },
+  { "Matricula": "N6088107", "Nome": "LEANDRO GONÇALVES DE CARVALHO", "Setor": "Empresarial", "ETIT": "-", "Assertividade": "-", "DPA": "79%" },
   { "Matricula": "N4014011", "Nome": "ALAN MARINHO DIAS", "Setor": "Residencial", "ETIT": "68%", "Assertividade": "93%", "DPA": "74%" },
   { "Matricula": "N5923996", "Nome": "JULIO CESAR SANTOS SOARES", "Setor": "Residencial", "ETIT": "100%", "Assertividade": "50%", "DPA": "66%" },
-  { "Matricula": "N5922887", "Nome": "ROMULO BARBOSA NICOLAE", "Setor": "Empresarial", "ETIT": "55%", "Assertividade": "-", "DPA": "65%" }
+  { "Matricula": "N5922887", "Nome": "ROMULO BARBOSA NICOLAE", "Setor": "Empresarial", "ETIT": "55%", "Assertividade": "-", "DPA": "65%" },
+  { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "Empresarial", "ETIT": "-", "Assertividade": "-", "DPA": "79%" }
 ];
 
 function definirMeta(setor, tipo) {
