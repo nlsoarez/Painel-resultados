@@ -1,5 +1,6 @@
 const employees = [
   { "Matricula": "N5713690", "Nome": "GABRIELA TAVARES DA SILVA", "Setor": "Empresarial", "ETIT": "67%", "Assertividade": "-", "DPA": "115%" },
+  { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "Empresarial", "ETIT": "79%", "Assertividade": "-", "DPA": "-" },
   { "Matricula": "N0125317", "Nome": "ROBERTO SILVA DO NASCIMENTO", "Setor": "Empresarial", "ETIT": "86%", "Assertividade": "-", "DPA": "100%" },
   { "Matricula": "N5972428", "Nome": "CRISTIANE HERMOGENES DA SILVA", "Setor": "Residencial", "ETIT": "59%", "Assertividade": "100%", "DPA": "98%" },
   { "Matricula": "N5772086", "Nome": "THIAGO PEREIRA DA SILVA", "Setor": "Residencial", "ETIT": "40%", "Assertividade": "100%", "DPA": "98%" },
