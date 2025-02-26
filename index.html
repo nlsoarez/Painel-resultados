@@ -1,64 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta Resultados</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 300px;
-        }
-        .logo {
-            width: 80px;
-            margin-bottom: 10px;
-        }
-        h2 {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .btn {
-            background-color: #d81e05;
-            color: white;
-            border: none;
-            padding: 10px;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .btn:hover {
-            background-color: #b81a04;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <title>Consulta de Indicadores</title>
 </head>
 <body>
     <div class="container">
-        <img src="logo-claro.png" alt="Claro" class="logo">
-        <h2>Consultar Resultados</h2>
-        <input type="text" placeholder="Digite o código">
-        <button class="btn">Consultar</button>
+        <img src="https://www.eventos.momentoeditorial.com.br/wp-content/uploads/2020/07/logo-Claro-800x600px.png" alt="Logo Claro" class="logo">
+        <h1>Consulta de Indicadores</h1>
+        <input type="text" id="matricula" placeholder="Digite a matrícula">
+        <button onclick="consultar()">Consultar</button>
+        <div id="resultado" class="resultado"></div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>
