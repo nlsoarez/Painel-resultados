@@ -23,7 +23,7 @@ body {
 }
 
 .logo {
-    max-width: 150px; /* Define um tamanho máximo */
+    max-width: 150px;
     height: auto;
     display: block;
 }
