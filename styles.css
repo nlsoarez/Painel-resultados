@@ -10,41 +10,41 @@ body {
 
 .container {
     background: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 400px;
+    width: 360px;
 }
 
 .logo {
-    width: 120px;
-    margin-bottom: 20px;
+    width: 80px; /* Reduzindo o tamanho para ficar mais profissional */
+    margin-bottom: 15px;
 }
 
 h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 20px;
+    margin-bottom: 15px;
     color: #333;
 }
 
 input {
     width: 90%;
-    padding: 12px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 button {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background-color: #e60000;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -54,10 +54,12 @@ button:hover {
 }
 
 #resultado {
-    margin-top: 20px;
+    margin-top: 15px;
     font-size: 16px;
     color: #333;
-    text-align: left; /* Alinha os resultados à esquerda */
+    text-align: left;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
 }
 
 #resultado p {
