@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Resultados</title>
+    <title>Consulta de Desempenho</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="container">
-    <img src="https://www.eventos.momentoeditorial.com.br/wp-content/uploads/2020/07/logo-Claro-800x600px.png" class="logo" alt="Claro Brasil">
-    <h1>Consultar Resultados</h1>
-    <input type="text" id="matricula" placeholder="Digite sua matrícula">
-    <button onclick="consultar()">Consultar</button>
-
-    <div id="resultado" style="display: none;"></div>
-
-    <p class="atualizacao">Última atualização: 23/02</p>
-</div>
-
-<script src="script.js"></script>
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://www.eventos.momentoeditorial.com.br/wp-content/uploads/2020/07/logo-Claro-800x600px.png" alt="Logo da Empresa" class="logo">
+        </div>
+        <h1>Consulta de Desempenho</h1>
+        <input type="text" id="matricula" placeholder="Digite a matrícula">
+        <button onclick="consultar()">Consultar</button>
+        <div id="resultado"></div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
