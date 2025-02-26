@@ -21,18 +21,6 @@ body {
     text-align: center;
 }
 
-/* Estilizando a logo */
-.logo-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.logo {
-    max-width: 150px;
-    height: auto;
-}
-
 /* Estilizando o título */
 h1 {
     font-size: 18px;
@@ -64,6 +52,13 @@ button {
 
 button:hover {
     background-color: #b30000;
+}
+
+/* Texto de atualização */
+.atualizacao {
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
 }
 
 /* Resultado */
