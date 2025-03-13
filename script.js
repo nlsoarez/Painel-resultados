@@ -1,5 +1,5 @@
 const employees = [
-  {{ "Matricula": "N6104793", "Nome": "Bruno Mariano Vilaca", "Setor": "Móvel", "DPA": "87%", "ETIT": "83%", "Assertividade": "98%" },
+  { "Matricula": "N6104793", "Nome": "Bruno Mariano Vilaca", "Setor": "Móvel", "DPA": "87%", "ETIT": "83%", "Assertividade": "98%" },
   { "Matricula": "N5802257", "Nome": "Magno Ferrarez de Morais", "Setor": "Móvel", "DPA": "56%", "ETIT": "73%", "Assertividade": "-" },
   { "Matricula": "N5931955", "Nome": "Thiago de Souza Inacio", "Setor": "Móvel", "DPA": "98%", "ETIT": "-", "Assertividade": "-" },
   { "Matricula": "N6173067", "Nome": "Juliana Ribeiro Galhão", "Setor": "Móvel", "DPA": "72%", "ETIT": "93%", "Assertividade": "97%" },
