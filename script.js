@@ -33,7 +33,7 @@ function definirMeta(setor, tipo) {
         "ETIT Móvel": 80,
         "ETIT Residencial e Empresarial": 85,
         "Assertividade Móvel": 85,
-        "Assertividade Residencial": 98,
+        "Assertividade Residencial": 70,
         "DPA": 90
     };
 
