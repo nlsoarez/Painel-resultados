@@ -49,37 +49,37 @@ h1 {
   margin-bottom: 15px;
 }
 
-input {
+#matricula, #consultar-btn {
   width: 100%;
-  padding: 12px 15px;
+  padding: 12px;
   margin: 8px 0;
-  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 16px;
+  box-sizing: border-box;
+  height: 44px;
+}
+
+#matricula {
+  border: 1px solid var(--border-color);
   transition: border-color 0.3s;
 }
 
-input:focus {
+#matricula:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(220, 0, 0, 0.1);
 }
 
-button {
-  width: 100%;
-  padding: 12px;
+#consultar-btn {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
   font-weight: 600;
+  cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 5px;
 }
 
-button:hover {
+#consultar-btn:hover {
   background-color: var(--primary-hover);
 }
 
@@ -152,7 +152,18 @@ button:hover {
   text-align: center;
 }
 
-/* Responsive adjustments */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 @media (max-width: 480px) {
   .container {
     padding: 20px 15px;
