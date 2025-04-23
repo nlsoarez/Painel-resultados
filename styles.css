@@ -23,7 +23,7 @@ body {
 
 .container {
   width: 100%;
-  max-width: 450px;
+  max-width: 500px;
   background: white;
   padding: 25px;
   border-radius: 12px;
@@ -86,7 +86,7 @@ h1 {
 
 .resultado {
   margin-top: 25px;
-  padding: 15px;
+  padding: 20px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 15px;
@@ -106,32 +106,38 @@ h1 {
   color: var(--text-color);
 }
 
-.indicators {
-  margin-bottom: 15px;
-}
-
-.indicators p {
-  margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-.indicators small {
-  font-size: 12px;
-  color: #666;
-}
-
-.dpa-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 10px 0;
-}
-
-.dpa-value {
+.indicator-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin: 12px 0;
+}
+
+.indicator-name {
+  font-weight: bold;
+  min-width: 120px;
+}
+
+.indicator-value {
+  color: var(--success-color);
+  font-weight: bold;
+  text-align: right;
+  min-width: 60px;
+}
+
+.indicator-value.warning {
+  color: var(--warning-color);
+}
+
+.meta-value {
+  color: #666;
+  font-size: 0.95em;
+  min-width: 80px;
+  text-align: right;
+}
+
+.dpa-info {
+  margin: 15px 0 5px 0;
 }
 
 .meta-warning {
@@ -140,8 +146,7 @@ h1 {
   font-style: italic;
   padding-left: 12px;
   border-left: 3px solid var(--warning-light);
-  margin-top: 4px;
-  margin-left: 5px;
+  margin: 5px 0 0 15px;
 }
 
 .certification {
@@ -149,11 +154,59 @@ h1 {
   border-radius: 6px;
   font-weight: bold;
   text-align: center;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .certification.success {
   background-color: rgba(40, 167, 69, 0.1);
   color: var(--success-color);
   border: 1px solid var(--success-color);
+}
+
+.certification.warning {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-color);
+}
+
+.error {
+  color: var(--warning-color);
+  font-weight: 500;
+}
+
+.atualizacao {
+  font-size: 13px;
+  color: #666;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 15px;
+  }
+  
+  h1 {
+    font-size: 22px;
+  }
+  
+  .logo {
+    width: 150px;
+  }
+  
+  .indicator-name {
+    min-width: 110px;
+  }
 }
