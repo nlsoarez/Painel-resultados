@@ -116,7 +116,7 @@ function consultar() {
   
   const certificando = etitOk && assertividadeOk && dpaCertificando;
   const mensagemDPA = !dpaMetaIndividual && dpaCertificando ? 
-    '<span class="meta-warning">Certificando, mas abaixo da meta individual (90%)</span>' : 
+    '<div class="meta-warning">Certificando, mas abaixo da meta individual (90%)</div>' : 
     '';
 
   // Display results
@@ -128,8 +128,12 @@ function consultar() {
     <div class="indicators">
       <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")}</p>
       <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")}</p>
-      <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA_INDIVIDUAL")}
-      ${mensagemDPA}</p>
+      <div class="dpa-info">
+        <div class="dpa-value">
+          <span><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA_INDIVIDUAL")}</span>
+        </div>
+        ${mensagemDPA}
+      </div>
     </div>
     <div class="certification ${certificando ? 'success' : 'warning'}">
       ${certificando ? '✅ Certificando' : '❌ Não certificando'}
