@@ -34,106 +34,102 @@ const employees = [
 // Cache DOM elements
 const matriculaInput = document.getElementById("matricula");
 const resultadoDiv = document.getElementById("resultado");
+const consultarBtn = document.getElementById("consultar-btn");
 
-// Performance improvement: Create a lookup object for faster searches
+// Performance improvement: Create a lookup object
 const employeeLookup = {};
 employees.forEach(emp => {
-    employeeLookup[emp.Matricula] = emp;
+  employeeLookup[emp.Matricula] = emp;
 });
 
 // Meta definitions
 const METAS = {
-    "ETIT": {
-        "Móvel": 80,
-        "Residencial": 85,
-        "Empresarial": 85
-    },
-    "Assertividade": {
-        "Móvel": 85,
-        "Residencial": 70,
-        "Empresarial": 70 // Added default for Empresarial
-    },
-    "DPA": 90 // Standard for all sectors
+  "ETIT": {
+    "Móvel": 80,
+    "Residencial": 85,
+    "Empresarial": 85
+  },
+  "Assertividade": {
+    "Móvel": 85,
+    "Residencial": 70,
+    "Empresarial": 70
+  },
+  "DPA": 90
 };
 
 function definirMeta(setor, tipo) {
-    if (tipo === "DPA") return METAS.DPA;
-    return METAS[tipo][setor] || METAS[tipo]["Residencial"]; // Default to Residencial if sector not found
+  if (tipo === "DPA") return METAS.DPA;
+  return METAS[tipo][setor] || METAS[tipo]["Residencial"];
 }
 
 function parseIndicatorValue(valor) {
-    if (valor === "-" || valor === "Não informado") return null;
-    return parseFloat(valor.replace("%", ""));
+  if (valor === "-" || valor === "Não informado") return null;
+  return parseFloat(valor.replace("%", ""));
 }
 
 function considerarDentroMeta(valor, setor, tipo) {
-    const valorNumerico = parseIndicatorValue(valor);
-    if (valorNumerico === null) return true; // Consider missing values as meeting target
-    
-    return valorNumerico >= definirMeta(setor, tipo);
+  const valorNumerico = parseIndicatorValue(valor);
+  if (valorNumerico === null) return true;
+  return valorNumerico >= definirMeta(setor, tipo);
 }
 
 function formatarValor(valor, setor, tipo) {
-    const valorNumerico = parseIndicatorValue(valor);
-    if (valorNumerico === null) return "-";
-    
-    const dentroDaMeta = valorNumerico >= definirMeta(setor, tipo);
-    const color = dentroDaMeta ? "green" : "red";
-    return `<span style="color: ${color}; font-weight: ${!dentroDaMeta ? 'bold' : 'normal'}">${valor}</span>`;
+  const valorNumerico = parseIndicatorValue(valor);
+  if (valorNumerico === null) return "-";
+  
+  const meta = definirMeta(setor, tipo);
+  const dentroDaMeta = valorNumerico >= meta;
+  const color = dentroDaMeta ? "var(--success-color)" : "var(--warning-color)";
+  return `<span style="color: ${color}; font-weight: ${!dentroDaMeta ? 'bold' : 'normal'}">${valor}</span> <small>(Meta: ${meta}%)</small>`;
 }
 
 function handleKeyPress(event) {
-    if (event.key === "Enter") {
-        consultar();
-    }
+  if (event.key === "Enter") {
+    consultar();
+  }
 }
 
 function consultar() {
-    const matricula = matriculaInput.value.trim().toUpperCase();
-    
-    // Clear previous results
-    resultadoDiv.innerHTML = "";
-    
-    if (!matricula) {
-        resultadoDiv.innerHTML = "<p class='error'>Por favor, digite uma matrícula.</p>";
-        return;
-    }
+  const matricula = matriculaInput.value.trim().toUpperCase();
+  resultadoDiv.innerHTML = "";
+  
+  if (!matricula) {
+    resultadoDiv.innerHTML = "<p class='error'>Por favor, digite uma matrícula.</p>";
+    return;
+  }
 
-    const empregado = employeeLookup[matricula];
-    
-    if (!empregado) {
-        resultadoDiv.innerHTML = "<p class='error'>Matrícula não encontrada.</p>";
-        return;
-    }
+  const empregado = employeeLookup[matricula];
+  
+  if (!empregado) {
+    resultadoDiv.innerHTML = "<p class='error'>Matrícula não encontrada.</p>";
+    return;
+  }
 
-    // Check indicators
-    const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
-    const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
-    const dpaOk = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA");
-    const certificando = etitOk && assertividadeOk && dpaOk;
+  // Check indicators
+  const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
+  const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
+  const dpaOk = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA");
+  const certificando = etitOk && assertividadeOk && dpaOk;
 
-    // Display results
-    resultadoDiv.innerHTML = `
-        <div class="employee-info">
-            <h2>${empregado.Nome}</h2>
-            <p><strong>Setor:</strong> ${empregado.Setor}</p>
-        </div>
-        <div class="indicators">
-            <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")} 
-            <small>(Meta: ${definirMeta(empregado.Setor, "ETIT")}%)</small></p>
-            <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")} 
-            <small>(Meta: ${definirMeta(empregado.Setor, "Assertividade")}%)</small></p>
-            <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA")} 
-            <small>(Meta: ${METAS.DPA}%)</small></p>
-        </div>
-        <div class="certification ${certificando ? 'success' : 'warning'}">
-            ${certificando ? '✅ Certificando' : '❌ Não certificando'}
-        </div>
-    `;
+  // Display results
+  resultadoDiv.innerHTML = `
+    <div class="employee-info">
+      <h2>${empregado.Nome}</h2>
+      <p><strong>Setor:</strong> ${empregado.Setor}</p>
+    </div>
+    <div class="indicators">
+      <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")}</p>
+      <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")}</p>
+      <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA")}</p>
+    </div>
+    <div class="certification ${certificando ? 'success' : 'warning'}">
+      ${certificando ? '✅ Certificando' : '❌ Não certificando'}
+    </div>
+  `;
 }
 
-// Add event listeners
+// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-    matriculaInput.addEventListener('keypress', handleKeyPress);
-    document.querySelector('button').addEventListener('click', consultar);
+  matriculaInput.addEventListener('keypress', handleKeyPress);
+  consultarBtn.addEventListener('click', consultar);
 });
