@@ -36,7 +36,7 @@ const matriculaInput = document.getElementById("matricula");
 const resultadoDiv = document.getElementById("resultado");
 const consultarBtn = document.getElementById("consultar-btn");
 
-// Performance improvement: Create a lookup object
+// Create lookup object for faster searches
 const employeeLookup = {};
 employees.forEach(emp => {
   employeeLookup[emp.Matricula] = emp;
@@ -54,12 +54,15 @@ const METAS = {
     "Residencial": 70,
     "Empresarial": 70
   },
-  "DPA": 90
+  "DPA_CERTIFICACAO": 85,  // Minimum for certification
+  "DPA_INDIVIDUAL": 90     // Individual target
 };
 
 function definirMeta(setor, tipo) {
-  if (tipo === "DPA") return METAS.DPA;
-  return METAS[tipo][setor] || METAS[tipo]["Residencial"];
+  if (tipo === "DPA_CERTIFICACAO") return METAS.DPA_CERTIFICACAO;
+  if (tipo === "DPA_INDIVIDUAL") return METAS.DPA_INDIVIDUAL;
+  if (tipo === "ETIT") return METAS.ETIT[setor] || METAS.ETIT["Residencial"];
+  return METAS.Assertividade[setor] || METAS.Assertividade["Residencial"];
 }
 
 function parseIndicatorValue(valor) {
@@ -80,7 +83,7 @@ function formatarValor(valor, setor, tipo) {
   const meta = definirMeta(setor, tipo);
   const dentroDaMeta = valorNumerico >= meta;
   const color = dentroDaMeta ? "var(--success-color)" : "var(--warning-color)";
-  return `<span style="color: ${color}; font-weight: ${!dentroDaMeta ? 'bold' : 'normal'}">${valor}</span> <small>(Meta: ${meta}%)</small>`;
+  return `<span style="color: ${color}">${valor}</span> <small>(Meta: ${meta}%)</small>`;
 }
 
 function handleKeyPress(event) {
@@ -108,8 +111,13 @@ function consultar() {
   // Check indicators
   const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
   const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
-  const dpaOk = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA");
-  const certificando = etitOk && assertividadeOk && dpaOk;
+  const dpaCertificando = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA_CERTIFICACAO");
+  const dpaMetaIndividual = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA_INDIVIDUAL");
+  
+  const certificando = etitOk && assertividadeOk && dpaCertificando;
+  const mensagemDPA = !dpaMetaIndividual && dpaCertificando ? 
+    '<span class="meta-warning">Certificando, mas abaixo da meta individual (90%)</span>' : 
+    '';
 
   // Display results
   resultadoDiv.innerHTML = `
@@ -120,7 +128,8 @@ function consultar() {
     <div class="indicators">
       <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")}</p>
       <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")}</p>
-      <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA")}</p>
+      <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA_INDIVIDUAL")}
+      ${mensagemDPA}</p>
     </div>
     <div class="certification ${certificando ? 'success' : 'warning'}">
       ${certificando ? '✅ Certificando' : '❌ Não certificando'}
