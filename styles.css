@@ -3,6 +3,7 @@
   --primary-hover: #a00000;
   --success-color: #28a745;
   --warning-color: #dc3545;
+  --warning-light: #ff9800;
   --text-color: #333;
   --light-gray: #f8f9fa;
   --border-color: #dee2e6;
@@ -120,6 +121,29 @@ h1 {
   color: #666;
 }
 
+.dpa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 10px 0;
+}
+
+.dpa-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meta-warning {
+  color: var(--warning-light);
+  font-size: 0.85em;
+  font-style: italic;
+  padding-left: 12px;
+  border-left: 3px solid var(--warning-light);
+  margin-top: 4px;
+  margin-left: 5px;
+}
+
 .certification {
   padding: 12px;
   border-radius: 6px;
@@ -132,48 +156,4 @@ h1 {
   background-color: rgba(40, 167, 69, 0.1);
   color: var(--success-color);
   border: 1px solid var(--success-color);
-}
-
-.certification.warning {
-  background-color: rgba(220, 53, 69, 0.1);
-  color: var(--warning-color);
-  border: 1px solid var(--warning-color);
-}
-
-.error {
-  color: var(--warning-color);
-  font-weight: 500;
-}
-
-.atualizacao {
-  font-size: 13px;
-  color: #666;
-  margin-top: 20px;
-  text-align: center;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 20px 15px;
-  }
-  
-  h1 {
-    font-size: 22px;
-  }
-  
-  .logo {
-    width: 150px;
-  }
 }
