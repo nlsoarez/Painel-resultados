@@ -54,8 +54,8 @@ const METAS = {
     "Residencial": 70,
     "Empresarial": 70
   },
-  "DPA_CERTIFICACAO": 85,  // Minimum for certification
-  "DPA_INDIVIDUAL": 90     // Individual target
+  "DPA_CERTIFICACAO": 85,
+  "DPA_INDIVIDUAL": 90
 };
 
 function definirMeta(setor, tipo) {
@@ -74,16 +74,6 @@ function considerarDentroMeta(valor, setor, tipo) {
   const valorNumerico = parseIndicatorValue(valor);
   if (valorNumerico === null) return true;
   return valorNumerico >= definirMeta(setor, tipo);
-}
-
-function formatarValor(valor, setor, tipo) {
-  const valorNumerico = parseIndicatorValue(valor);
-  if (valorNumerico === null) return "-";
-  
-  const meta = definirMeta(setor, tipo);
-  const dentroDaMeta = valorNumerico >= meta;
-  const color = dentroDaMeta ? "var(--success-color)" : "var(--warning-color)";
-  return `<span style="color: ${color}">${valor}</span> <small>(Meta: ${meta}%)</small>`;
 }
 
 function handleKeyPress(event) {
@@ -119,22 +109,32 @@ function consultar() {
     '<div class="meta-warning">Certificando, mas abaixo da meta individual (90%)</div>' : 
     '';
 
-  // Display results
+  // Display results with new aligned layout
   resultadoDiv.innerHTML = `
     <div class="employee-info">
       <h2>${empregado.Nome}</h2>
       <p><strong>Setor:</strong> ${empregado.Setor}</p>
     </div>
-    <div class="indicators">
-      <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")}</p>
-      <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")}</p>
-      <div class="dpa-info">
-        <div class="dpa-value">
-          <span><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA_INDIVIDUAL")}</span>
-        </div>
-        ${mensagemDPA}
-      </div>
+    
+    <div class="indicator-row">
+      <span class="indicator-name">ETIT:</span>
+      <span class="indicator-value ${etitOk ? '' : 'warning'}">${empregado.ETIT}</span>
+      <span class="meta-value">(Meta: ${definirMeta(empregado.Setor, "ETIT")}%)</span>
     </div>
+    
+    <div class="indicator-row">
+      <span class="indicator-name">Assertividade:</span>
+      <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${empregado.Assertividade}</span>
+      <span class="meta-value">(Meta: ${definirMeta(empregado.Setor, "Assertividade")}%)</span>
+    </div>
+    
+    <div class="indicator-row dpa-info">
+      <span class="indicator-name">DPA:</span>
+      <span class="indicator-value ${dpaMetaIndividual ? '' : 'warning'}">${empregado.DPA}</span>
+      <span class="meta-value">(Meta: ${METAS.DPA_INDIVIDUAL}%)</span>
+    </div>
+    ${mensagemDPA}
+    
     <div class="certification ${certificando ? 'success' : 'warning'}">
       ${certificando ? '✅ Certificando' : '❌ Não certificando'}
     </div>
