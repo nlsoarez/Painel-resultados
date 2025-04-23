@@ -1,5 +1,5 @@
 const employees = [
-  { "Matricula": "N6104793", "Nome": "Bruno Mariano Vilaca", "Setor": "Móvel", "DPA": "89%", "ETIT": "81%", "Assertividade": "98%" },
+    { "Matricula": "N6104793", "Nome": "Bruno Mariano Vilaca", "Setor": "Móvel", "DPA": "89%", "ETIT": "81%", "Assertividade": "98%" },
   { "Matricula": "N5931955", "Nome": "Thiago de Souza Inacio", "Setor": "Móvel", "DPA": "95%", "ETIT": "82%", "Assertividade": "93%" },
   { "Matricula": "N6173067", "Nome": "Juliana Ribeiro Galhão", "Setor": "Móvel", "DPA": "90%", "ETIT": "87%", "Assertividade": "96%" },
   { "Matricula": "N6071740", "Nome": "Thiago Barboza dos Santos", "Setor": "Móvel", "DPA": "85%", "ETIT": "84%", "Assertividade": "98%" },
@@ -29,73 +29,111 @@ const employees = [
   { "Matricula": "N0255801", "Nome": "Elberton Aniceto Henrique", "Setor": "Residencial", "DPA": "91%", "ETIT": "100%", "Assertividade": "80%" },
   { "Matricula": "N4014011", "Nome": "Alan Marinho Dias", "Setor": "Residencial", "DPA": "91%", "ETIT": "95%", "Assertividade": "67%" },
   { "Matricula": "N5923996", "Nome": "Julio Cesar Santos Soares", "Setor": "Residencial", "DPA": "87%", "ETIT": "90%", "Assertividade": "88%" }
-]
-function definirMeta(setor, tipo) {
-    const metas = {
-        "ETIT Móvel": 80,
-        "ETIT Residencial e Empresarial": 85,
-        "Assertividade Móvel": 85,
-        "Assertividade Residencial": 70,
-        "DPA": 90
-    };
+];
 
-    if (tipo === "ETIT") {
-        return setor === "Móvel" ? metas["ETIT Móvel"] : metas["ETIT Residencial e Empresarial"];
-    }
-    if (tipo === "Assertividade") {
-        return setor === "Móvel" ? metas["Assertividade Móvel"] : metas["Assertividade Residencial"];
-    }
-    return metas["DPA"];
+// Cache DOM elements
+const matriculaInput = document.getElementById("matricula");
+const resultadoDiv = document.getElementById("resultado");
+
+// Performance improvement: Create a lookup object for faster searches
+const employeeLookup = {};
+employees.forEach(emp => {
+    employeeLookup[emp.Matricula] = emp;
+});
+
+// Meta definitions
+const METAS = {
+    "ETIT": {
+        "Móvel": 80,
+        "Residencial": 85,
+        "Empresarial": 85
+    },
+    "Assertividade": {
+        "Móvel": 85,
+        "Residencial": 70,
+        "Empresarial": 70 // Added default for Empresarial
+    },
+    "DPA": 90 // Standard for all sectors
+};
+
+function definirMeta(setor, tipo) {
+    if (tipo === "DPA") return METAS.DPA;
+    return METAS[tipo][setor] || METAS[tipo]["Residencial"]; // Default to Residencial if sector not found
+}
+
+function parseIndicatorValue(valor) {
+    if (valor === "-" || valor === "Não informado") return null;
+    return parseFloat(valor.replace("%", ""));
 }
 
 function considerarDentroMeta(valor, setor, tipo) {
-    if (valor === "-" || valor === "Não informado") {
-        return true; 
-    }
-
-    const valorNumerico = parseFloat(valor.replace("%", ""));
+    const valorNumerico = parseIndicatorValue(valor);
+    if (valorNumerico === null) return true; // Consider missing values as meeting target
+    
     return valorNumerico >= definirMeta(setor, tipo);
 }
 
 function formatarValor(valor, setor, tipo) {
-    if (valor === "-" || valor === "Não informado") {
-        return "-";
-    }
-
-    const valorNumerico = parseFloat(valor.replace("%", ""));
+    const valorNumerico = parseIndicatorValue(valor);
+    if (valorNumerico === null) return "-";
+    
     const dentroDaMeta = valorNumerico >= definirMeta(setor, tipo);
-    return dentroDaMeta ? `<span style="color: green;">${valor}</span>` : `<span style="color: red;">${valor}</span>`;
+    const color = dentroDaMeta ? "green" : "red";
+    return `<span style="color: ${color}; font-weight: ${!dentroDaMeta ? 'bold' : 'normal'}">${valor}</span>`;
+}
+
+function handleKeyPress(event) {
+    if (event.key === "Enter") {
+        consultar();
+    }
 }
 
 function consultar() {
-    const matriculaInput = document.getElementById("matricula").value.trim().toUpperCase();
-    const resultadoDiv = document.getElementById("resultado");
-
-    if (!matriculaInput) {
-        resultadoDiv.innerHTML = "<p style='color: red;'>Por favor, digite uma matrícula.</p>";
+    const matricula = matriculaInput.value.trim().toUpperCase();
+    
+    // Clear previous results
+    resultadoDiv.innerHTML = "";
+    
+    if (!matricula) {
+        resultadoDiv.innerHTML = "<p class='error'>Por favor, digite uma matrícula.</p>";
         return;
     }
 
-    const empregado = employees.find(emp => emp.Matricula === matriculaInput);
-
-    if (empregado) {
-        const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
-        const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
-        const dpaOk = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA");
-
-        const certificacaoMsg = etitOk && assertividadeOk && dpaOk ? 
-            `<p style="color: green; font-weight: bold;">Você está certificando ✅</p>` : 
-            `<p style="color: red; font-weight: bold;">Você não está certificando ❌</p>`;
-
-        resultadoDiv.innerHTML = `
-            <p><strong>Nome:</strong> ${empregado.Nome}</p>
-            <p><strong>Setor:</strong> ${empregado.Setor}</p>
-            <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")}</p>
-            <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")}</p>
-            <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA")}</p>
-            ${certificacaoMsg}
-        `;
-    } else {
-        resultadoDiv.innerHTML = "<p style='color: red;'>Matrícula não encontrada.</p>";
+    const empregado = employeeLookup[matricula];
+    
+    if (!empregado) {
+        resultadoDiv.innerHTML = "<p class='error'>Matrícula não encontrada.</p>";
+        return;
     }
+
+    // Check indicators
+    const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
+    const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
+    const dpaOk = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA");
+    const certificando = etitOk && assertividadeOk && dpaOk;
+
+    // Display results
+    resultadoDiv.innerHTML = `
+        <div class="employee-info">
+            <h2>${empregado.Nome}</h2>
+            <p><strong>Setor:</strong> ${empregado.Setor}</p>
+        </div>
+        <div class="indicators">
+            <p><strong>ETIT:</strong> ${formatarValor(empregado.ETIT, empregado.Setor, "ETIT")} 
+            <small>(Meta: ${definirMeta(empregado.Setor, "ETIT")}%)</small></p>
+            <p><strong>Assertividade:</strong> ${formatarValor(empregado.Assertividade, empregado.Setor, "Assertividade")} 
+            <small>(Meta: ${definirMeta(empregado.Setor, "Assertividade")}%)</small></p>
+            <p><strong>DPA:</strong> ${formatarValor(empregado.DPA, empregado.Setor, "DPA")} 
+            <small>(Meta: ${METAS.DPA}%)</small></p>
+        </div>
+        <div class="certification ${certificando ? 'success' : 'warning'}">
+            ${certificando ? '✅ Certificando' : '❌ Não certificando'}
+        </div>
+    `;
 }
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    matriculaInput.addEventListener('keypress', handleKeyPress);
+    document.querySelector('button').addEventListener('click', consultar);
+});
