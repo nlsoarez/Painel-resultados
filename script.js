@@ -45,24 +45,30 @@ employees.forEach(emp => {
 // Meta definitions
 const METAS = {
   "ETIT": {
-    "Móvel": 80,
-    "Residencial": 85,
-    "Empresarial": 85
+    "MÓVEL": 80,
+    "RESIDENCIAL": 85,
+    "EMPRESARIAL": 85
   },
   "Assertividade": {
-    "Móvel": 85,
-    "Residencial": 70,
-    "Empresarial": 70
+    "MÓVEL": 85,
+    "RESIDENCIAL": 70,
+    "EMPRESARIAL": 70  // Added Empresarial goal for Assertividade
   },
-  "DPA_CERTIFICACAO": 85,
-  "DPA_INDIVIDUAL": 90
+  "DPA": {
+    "CERTIFICACAO": 85,
+    "INDIVIDUAL": 90
+  }
 };
 
 function definirMeta(setor, tipo) {
-  if (tipo === "DPA_CERTIFICACAO") return METAS.DPA_CERTIFICACAO;
-  if (tipo === "DPA_INDIVIDUAL") return METAS.DPA_INDIVIDUAL;
-  if (tipo === "ETIT") return METAS.ETIT[setor] || METAS.ETIT["Residencial"];
-  return METAS.Assertividade[setor] || METAS.Assertividade["Residencial"];
+  if (tipo === "DPA") {
+    return {
+      certificacao: METAS.DPA.CERTIFICACAO,
+      individual: METAS.DPA.INDIVIDUAL
+    };
+  }
+  if (tipo === "ETIT") return METAS.ETIT[setor] || 0;
+  return METAS.Assertividade[setor] || 0;
 }
 
 function parseIndicatorValue(valor) {
@@ -70,10 +76,15 @@ function parseIndicatorValue(valor) {
   return parseFloat(valor.replace("%", ""));
 }
 
-function considerarDentroMeta(valor, setor, tipo) {
+function considerarDentroMeta(valor, setor, tipo, metaType = "individual") {
   const valorNumerico = parseIndicatorValue(valor);
-  if (valorNumerico === null) return true;
-  return valorNumerico >= definirMeta(setor, tipo);
+  if (valorNumerico === null) return true; // Consider as meeting goal if not informed
+  
+  const meta = tipo === "DPA" 
+    ? definirMeta(setor, tipo)[metaType]
+    : definirMeta(setor, tipo);
+    
+  return valorNumerico >= meta;
 }
 
 function handleKeyPress(event) {
@@ -98,11 +109,14 @@ function consultar() {
     return;
   }
 
+  // Normalize sector name to match meta keys
+  const setor = empregado.Setor.toUpperCase();
+  
   // Check indicators
-  const etitOk = considerarDentroMeta(empregado.ETIT, empregado.Setor, "ETIT");
-  const assertividadeOk = considerarDentroMeta(empregado.Assertividade, empregado.Setor, "Assertividade");
-  const dpaCertificando = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA_CERTIFICACAO");
-  const dpaMetaIndividual = considerarDentroMeta(empregado.DPA, empregado.Setor, "DPA_INDIVIDUAL");
+  const etitOk = considerarDentroMeta(empregado.ETIT, setor, "ETIT");
+  const assertividadeOk = considerarDentroMeta(empregado.Assertividade, setor, "Assertividade");
+  const dpaCertificando = considerarDentroMeta(empregado.DPA, setor, "DPA", "certificacao");
+  const dpaMetaIndividual = considerarDentroMeta(empregado.DPA, setor, "DPA", "individual");
   
   const certificando = etitOk && assertividadeOk && dpaCertificando;
   const mensagemDPA = !dpaMetaIndividual && dpaCertificando ? 
@@ -110,8 +124,8 @@ function consultar() {
     '';
 
   // Display results with new aligned layout
-  resultadoDiv.innerHTML = `
-    <div class="employee-info">
+  resultadoDiv.innerHTML = 
+    `<div class="employee-info">
       <h2>${empregado.Nome}</h2>
       <p><strong>Setor:</strong> ${empregado.Setor}</p>
     </div>
@@ -119,26 +133,25 @@ function consultar() {
     <div class="indicator-row">
       <span class="indicator-name">ETIT:</span>
       <span class="indicator-value ${etitOk ? '' : 'warning'}">${empregado.ETIT}</span>
-      <span class="meta-value">(Meta: ${definirMeta(empregado.Setor, "ETIT")}%)</span>
+      <span class="meta-value">(Meta: ${definirMeta(setor, "ETIT")}%)</span>
     </div>
     
     <div class="indicator-row">
       <span class="indicator-name">Assertividade:</span>
       <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${empregado.Assertividade}</span>
-      <span class="meta-value">(Meta: ${definirMeta(empregado.Setor, "Assertividade")}%)</span>
+      <span class="meta-value">(Meta: ${definirMeta(setor, "Assertividade")}%)</span>
     </div>
     
     <div class="indicator-row dpa-info">
       <span class="indicator-name">DPA:</span>
       <span class="indicator-value ${dpaMetaIndividual ? '' : 'warning'}">${empregado.DPA}</span>
-      <span class="meta-value">(Meta: ${METAS.DPA_INDIVIDUAL}%)</span>
+      <span class="meta-value">(Meta Individual: ${METAS.DPA.INDIVIDUAL}%, Certificação: ${METAS.DPA.CERTIFICACAO}%)</span>
     </div>
     ${mensagemDPA}
     
     <div class="certification ${certificando ? 'success' : 'warning'}">
       ${certificando ? '✅ Certificando' : '❌ Não certificando'}
-    </div>
-  `;
+    </div>`;
 }
 
 // Event listeners
