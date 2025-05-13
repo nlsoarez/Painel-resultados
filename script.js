@@ -12,7 +12,7 @@ const employees = [
   { "Matricula": "N5802257", "Nome": "MAGNO FERRAREZ DE MORAIS", "Setor": "EMPRESARIAL", "DPA": "94%", "ETIT": "50%", "Assertividade": "_" },
   { "Matricula": "N5604148", "Nome": "DANIEL MARCELO FELISBERTO OLIVEIRA", "Setor": "EMPRESARIAL", "DPA": "_", "ETIT": "86%", "Assertividade": "_" },
   { "Matricula": "F201714", "Nome": "FERNANDA MESQUITA DE FREITAS", "Setor": "EMPRESARIAL", "DPA": "91%", "ETIT": "90%", "Assertividade": "_" },
-  { "Matricula": "N0125317", "Nome": "ROBERTO SILVA DO NASCIMENTO", "Setor": "EMPRESARIAL", "DPA": "93%", "ETIT": "95%", "Assertividade": "_" },
+  { "Matricula": "N0125317", "Nome": "ROBERTO SILVA DO NASCIMENTO", "Setor": "EMPRESARIAL", "DPA": "93%", "ETIT": "95%", "Assertividade": "–" },
   { "Matricula": "N5819183", "Nome": "RODRIGO PIRES BERNARDINO", "Setor": "EMPRESARIAL", "DPA": "99%", "ETIT": "80%", "Assertividade": "_" },
   { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "EMPRESARIAL", "DPA": "_", "ETIT": "100%", "Assertividade": "_" },
   { "Matricula": "N5932064", "Nome": "MONICA DA SILVA RODRIGUES", "Setor": "EMPRESARIAL", "DPA": "122%", "ETIT": "100%", "Assertividade": "_" },
@@ -78,13 +78,20 @@ function parseIndicatorValue(valor) {
 
 function considerarDentroMeta(valor, setor, tipo, metaType = "individual") {
   const valorNumerico = parseIndicatorValue(valor);
-  if (valorNumerico === null) return true; // Considera como dentro da meta se não informado
+  // Valores não numéricos são considerados como dentro da meta
+  if (valorNumerico === null) return true;
   
   const meta = tipo === "DPA" 
     ? definirMeta(setor, tipo)[metaType]
     : definirMeta(setor, tipo);
     
   return valorNumerico >= meta;
+}
+
+function formatarValor(valor) {
+  // Mantém a exibição original para valores não numéricos
+  if (valor === "-" || valor === "–" || valor === "_" || valor === "Não informado") return valor;
+  return valor;
 }
 
 function handleKeyPress(event) {
@@ -131,19 +138,19 @@ function consultar() {
     
     <div class="indicator-row">
       <span class="indicator-name">ETIT:</span>
-      <span class="indicator-value ${etitOk ? '' : 'warning'}">${empregado.ETIT}</span>
+      <span class="indicator-value ${etitOk ? '' : 'warning'}">${formatarValor(empregado.ETIT)}</span>
       <span class="meta-value">(Meta: ${definirMeta(setor, "ETIT")}%)</span>
     </div>
     
     <div class="indicator-row">
       <span class="indicator-name">Assertividade:</span>
-      <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${empregado.Assertividade}</span>
+      <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${formatarValor(empregado.Assertividade)}</span>
       <span class="meta-value">(Meta: ${definirMeta(setor, "Assertividade")}%)</span>
     </div>
     
     <div class="indicator-row dpa-info">
       <span class="indicator-name">DPA:</span>
-      <span class="indicator-value ${dpaMetaIndividual ? '' : 'warning'}">${empregado.DPA}</span>
+      <span class="indicator-value ${dpaMetaIndividual ? '' : 'warning'}">${formatarValor(empregado.DPA)}</span>
       <span class="meta-value">(Meta Individual: ${METAS.DPA.INDIVIDUAL}%, Certificação: ${METAS.DPA.CERTIFICACAO}%)</span>
     </div>
     ${mensagemDPA}
