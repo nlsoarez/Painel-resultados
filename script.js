@@ -51,7 +51,6 @@ const METAS = {
   "Assertividade": {
     "MÓVEL": 85,
     "RESIDENCIAL": 70,
-    "EMPRESARIAL": 70  // Added Empresarial goal for Assertividade
   },
   "DPA": {
     "CERTIFICACAO": 85,
