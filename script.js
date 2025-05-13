@@ -5,19 +5,19 @@ const employees = [
   { "Matricula": "N6071740", "Nome": "THIAGO BARBOZA DOS SANTOS", "Setor": "MÓVEL", "DPA": "63%", "ETIT": "100%", "Assertividade": "99%" },
   { "Matricula": "N6172207", "Nome": "CHARLES DOS SANTOS PAIVA", "Setor": "MÓVEL", "DPA": "83%", "ETIT": "–", "Assertividade": "–" },
   { "Matricula": "F204763", "Nome": "RODRIGO REIS DUARTE", "Setor": "MÓVEL", "DPA": "88%", "ETIT": "99%", "Assertividade": "95%" },
-  { "Matricula": "N6088107", "Nome": "LEANDRO GONÇALVES DE CARVALHO", "Setor": "EMPRESARIAL", "DPA": "112%", "ETIT": "–", "Assertividade": "–" },
-  { "Matricula": "N5619600", "Nome": "BRUNO COSTA BUCARD", "Setor": "EMPRESARIAL", "DPA": "85%", "ETIT": "–", "Assertividade": "–" },
-  { "Matricula": "N0189105", "Nome": "IGOR MARCELINO DE MARINS", "Setor": "EMPRESARIAL", "DPA": "78%", "ETIT": "100%", "Assertividade": "–" },
-  { "Matricula": "N5713690", "Nome": "GABRIELA TAVARES DA SILVA", "Setor": "EMPRESARIAL", "DPA": "84%", "ETIT": "97%", "Assertividade": "–" },
-  { "Matricula": "N5802257", "Nome": "MAGNO FERRAREZ DE MORAIS", "Setor": "EMPRESARIAL", "DPA": "94%", "ETIT": "50%", "Assertividade": "–" },
-  { "Matricula": "N5604148", "Nome": "DANIEL MARCELO FELISBERTO OLIVEIRA", "Setor": "EMPRESARIAL", "DPA": "–", "ETIT": "86%", "Assertividade": "–" },
-  { "Matricula": "F201714", "Nome": "FERNANDA MESQUITA DE FREITAS", "Setor": "EMPRESARIAL", "DPA": "91%", "ETIT": "90%", "Assertividade": "–" },
-  { "Matricula": "N0125317", "Nome": "ROBERTO SILVA DO NASCIMENTO", "Setor": "EMPRESARIAL", "DPA": "93%", "ETIT": "95%", "Assertividade": "–" },
-  { "Matricula": "N5819183", "Nome": "RODRIGO PIRES BERNARDINO", "Setor": "EMPRESARIAL", "DPA": "99%", "ETIT": "80%", "Assertividade": "–" },
-  { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "EMPRESARIAL", "DPA": "–", "ETIT": "100%", "Assertividade": "–" },
-  { "Matricula": "N5932064", "Nome": "MONICA DA SILVA RODRIGUES", "Setor": "EMPRESARIAL", "DPA": "122%", "ETIT": "100%", "Assertividade": "–" },
-  { "Matricula": "N0238475", "Nome": "MARLEY MARQUES RIBEIRO", "Setor": "RESIDENCIAL", "DPA": "61%", "ETIT": "–", "Assertividade": "–" },
-  { "Matricula": "N5923221", "Nome": "KELLY PINHEIRO LIRA", "Setor": "RESIDENCIAL", "DPA": "–", "ETIT": "–", "Assertividade": "–" },
+  { "Matricula": "N6088107", "Nome": "LEANDRO GONÇALVES DE CARVALHO", "Setor": "EMPRESARIAL", "DPA": "112%", "ETIT": "_", "Assertividade": "_" },
+  { "Matricula": "N5619600", "Nome": "BRUNO COSTA BUCARD", "Setor": "EMPRESARIAL", "DPA": "85%", "ETIT": "_", "Assertividade": "_" },
+  { "Matricula": "N0189105", "Nome": "IGOR MARCELINO DE MARINS", "Setor": "EMPRESARIAL", "DPA": "78%", "ETIT": "100%", "Assertividade": "_" },
+  { "Matricula": "N5713690", "Nome": "GABRIELA TAVARES DA SILVA", "Setor": "EMPRESARIAL", "DPA": "84%", "ETIT": "97%", "Assertividade": "_" },
+  { "Matricula": "N5802257", "Nome": "MAGNO FERRAREZ DE MORAIS", "Setor": "EMPRESARIAL", "DPA": "94%", "ETIT": "50%", "Assertividade": "_" },
+  { "Matricula": "N5604148", "Nome": "DANIEL MARCELO FELISBERTO OLIVEIRA", "Setor": "EMPRESARIAL", "DPA": "_", "ETIT": "86%", "Assertividade": "_" },
+  { "Matricula": "F201714", "Nome": "FERNANDA MESQUITA DE FREITAS", "Setor": "EMPRESARIAL", "DPA": "91%", "ETIT": "90%", "Assertividade": "_" },
+  { "Matricula": "N0125317", "Nome": "ROBERTO SILVA DO NASCIMENTO", "Setor": "EMPRESARIAL", "DPA": "93%", "ETIT": "95%", "Assertividade": "_" },
+  { "Matricula": "N5819183", "Nome": "RODRIGO PIRES BERNARDINO", "Setor": "EMPRESARIAL", "DPA": "99%", "ETIT": "80%", "Assertividade": "_" },
+  { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "EMPRESARIAL", "DPA": "_", "ETIT": "100%", "Assertividade": "_" },
+  { "Matricula": "N5932064", "Nome": "MONICA DA SILVA RODRIGUES", "Setor": "EMPRESARIAL", "DPA": "122%", "ETIT": "100%", "Assertividade": "_" },
+  { "Matricula": "N0238475", "Nome": "MARLEY MARQUES RIBEIRO", "Setor": "RESIDENCIAL", "DPA": "61%", "ETIT": "_", "Assertividade": "_" },
+  { "Matricula": "N5923221", "Nome": "KELLY PINHEIRO LIRA", "Setor": "RESIDENCIAL", "DPA": "_", "ETIT": "_", "Assertividade": "_" },
   { "Matricula": "F160641", "Nome": "JENNIFER MARIA ANDRADE SANTOS", "Setor": "RESIDENCIAL", "DPA": "97%", "ETIT": "100%", "Assertividade": "63%" },
   { "Matricula": "N5772086", "Nome": "THIAGO PEREIRA DA SILVA", "Setor": "RESIDENCIAL", "DPA": "104%", "ETIT": "100%", "Assertividade": "83%" },
   { "Matricula": "N0239871", "Nome": "LEONARDO FERREIRA LIMA DE ALMEIDA", "Setor": "RESIDENCIAL", "DPA": "88%", "ETIT": "100%", "Assertividade": "72%" },
@@ -51,6 +51,7 @@ const METAS = {
   "Assertividade": {
     "MÓVEL": 85,
     "RESIDENCIAL": 70,
+    "EMPRESARIAL": 70
   },
   "DPA": {
     "CERTIFICACAO": 85,
@@ -65,18 +66,19 @@ function definirMeta(setor, tipo) {
       individual: METAS.DPA.INDIVIDUAL
     };
   }
-  if (tipo === "ETIT") return METAS.ETIT[setor] || 0;
-  return METAS.Assertividade[setor] || 0;
+  const setorNormalizado = setor.toUpperCase();
+  if (tipo === "ETIT") return METAS.ETIT[setorNormalizado] || 0;
+  return METAS.Assertividade[setorNormalizado] || 0;
 }
 
 function parseIndicatorValue(valor) {
-  if (valor === "-" || valor === "Não informado") return null;
-  return parseFloat(valor.replace("%", ""));
+  if (valor === "-" || valor === "–" || valor === "_" || valor === "Não informado") return null;
+  return parseFloat(valor.replace("%", "").replace(",", "."));
 }
 
 function considerarDentroMeta(valor, setor, tipo, metaType = "individual") {
   const valorNumerico = parseIndicatorValue(valor);
-  if (valorNumerico === null) return true; // Consider as meeting goal if not informed
+  if (valorNumerico === null) return true; // Considera como dentro da meta se não informado
   
   const meta = tipo === "DPA" 
     ? definirMeta(setor, tipo)[metaType]
@@ -107,7 +109,6 @@ function consultar() {
     return;
   }
 
-  // Normalize sector name to match meta keys
   const setor = empregado.Setor.toUpperCase();
   
   // Check indicators
@@ -121,7 +122,7 @@ function consultar() {
     '<div class="meta-warning">Certificando, mas abaixo da meta individual (90%)</div>' : 
     '';
 
-  // Display results with new aligned layout
+  // Display results
   resultadoDiv.innerHTML = 
     `<div class="employee-info">
       <h2>${empregado.Nome}</h2>
