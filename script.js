@@ -40,17 +40,17 @@ employees.forEach(emp => {
   employeeLookup[emp.Matricula] = emp;
 });
 
-// Meta definitions
+// Meta definitions - Updated with new targets
 const METAS = {
   "ETIT": {
     "MÓVEL": 80,
-    "RESIDENCIAL": 85,
-    "EMPRESARIAL": 85
+    "RESIDENCIAL": 90,
+    "EMPRESARIAL": 90
   },
   "Assertividade": {
     "MÓVEL": 85,
     "RESIDENCIAL": 70,
-    "EMPRESARIAL": 70
+    "EMPRESARIAL": null // Não se aplica
   },
   "DPA": {
     "CERTIFICACAO": 85,
@@ -76,6 +76,13 @@ function parseIndicatorValue(valor) {
 }
 
 function considerarDentroMeta(valor, setor, tipo, metaType = "individual") {
+  const setorNormalizado = setor.toUpperCase();
+  
+  // Assertividade não se aplica ao setor EMPRESARIAL
+  if (tipo === "Assertividade" && setorNormalizado === "EMPRESARIAL") {
+    return true; // Considera como dentro da meta pois não se aplica
+  }
+  
   const valorNumerico = parseIndicatorValue(valor);
   // Valores não numéricos são considerados como dentro da meta
   if (valorNumerico === null) return true;
@@ -119,14 +126,31 @@ function consultar() {
   
   // Check indicators
   const etitOk = considerarDentroMeta(empregado.ETIT, setor, "ETIT");
-  const assertividadeOk = considerarDentroMeta(empregado.Assertividade, setor, "Assertividade");
+  const assertividadeOk = setor === "EMPRESARIAL" ? null : considerarDentroMeta(empregado.Assertividade, setor, "Assertividade");
   const dpaCertificando = considerarDentroMeta(empregado.DPA, setor, "DPA", "certificacao");
   const dpaMetaIndividual = considerarDentroMeta(empregado.DPA, setor, "DPA", "individual");
   
-  const certificando = etitOk && assertividadeOk && dpaCertificando;
+  // Para certificação, Assertividade não conta para EMPRESARIAL
+  const certificando = etitOk && 
+                     (setor === "EMPRESARIAL" || assertividadeOk) && 
+                     dpaCertificando;
+  
   const mensagemDPA = !dpaMetaIndividual && dpaCertificando ? 
     '<div class="meta-warning">Certificando, mas abaixo da meta individual (90%)</div>' : 
     '';
+
+  // Format Assertividade display differently for EMPRESARIAL
+  const assertividadeDisplay = setor === "EMPRESARIAL" ?
+    `<div class="indicator-row">
+      <span class="indicator-name">Assertividade:</span>
+      <span class="indicator-value not-applicable">N/A</span>
+      <span class="meta-value">(Não se aplica)</span>
+    </div>` :
+    `<div class="indicator-row">
+      <span class="indicator-name">Assertividade:</span>
+      <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${formatarValor(empregado.Assertividade)}</span>
+      <span class="meta-value">(Meta: ${definirMeta(setor, "Assertividade")}%)</span>
+    </div>`;
 
   // Display results
   resultadoDiv.innerHTML = 
@@ -141,11 +165,7 @@ function consultar() {
       <span class="meta-value">(Meta: ${definirMeta(setor, "ETIT")}%)</span>
     </div>
     
-    <div class="indicator-row">
-      <span class="indicator-name">Assertividade:</span>
-      <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${formatarValor(empregado.Assertividade)}</span>
-      <span class="meta-value">(Meta: ${definirMeta(setor, "Assertividade")}%)</span>
-    </div>
+    ${assertividadeDisplay}
     
     <div class="indicator-row dpa-info">
       <span class="indicator-name">DPA:</span>
