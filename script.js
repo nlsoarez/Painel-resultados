@@ -27,7 +27,7 @@ const employees = [
   { "Matricula": "N5932090", "Nome": "EVILÁZIO ANDRÉ DE MAGALHÃES GOMES PEREIRA", "Setor": "RESIDENCIAL", "DPA": "95%", "ETIT": "100%", "Assertividade": "93%" },
   { "Matricula": "N0255801", "Nome": "ELBERTON ANICETO HENRIQUE", "Setor": "RESIDENCIAL", "DPA": "78%", "ETIT": "88%", "Assertividade": "66%" },
   { "Matricula": "N4014011", "Nome": "ALAN MARINHO DIAS", "Setor": "RESIDENCIAL", "DPA": "90%", "ETIT": "67%", "Assertividade": "59%" },
-  { "Matricula": "N4014011", "Nome": "JULIO CESAR SANTOS SOARES", "Setor": "RESIDENCIAL", "DPA": "92%", "ETIT": "91", "Assertividade": "80" }
+  { "Matricula": "N5923996", "Nome": "JULIO CESAR SANTOS SOARES", "Setor": "RESIDENCIAL", "DPA": "92%", "ETIT": "91", "Assertividade": "80" }
 ];
 
 // Cache DOM elements
