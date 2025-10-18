@@ -21,7 +21,6 @@ const employees = [
   { "Matricula": "N4014011", "Nome": "ALAN MARINHO DIAS", "Setor": "RESIDENCIAL", "DPA": "78%", "ETIT": "100%", "Assertividade": "63%" },
   { "Matricula": "F106664", "Nome": "RAISSA LIMA DE OLIVEIRA", "Setor": "RESIDENCIAL", "DPA": "89%", "ETIT": "100%", "Assertividade": "100%" }
 ];
-
 // Cache DOM elements
 const matriculaInput = document.getElementById("matricula");
 const resultadoDiv = document.getElementById("resultado");
