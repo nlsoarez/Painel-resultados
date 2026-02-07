@@ -33,5 +33,5 @@
 //
 // =============================================================
 
-const SUPABASE_URL = '';      // ex: https://abcdefghij.supabase.co
-const SUPABASE_ANON_KEY = ''; // ex: eyJhbGciOiJIUzI1NiIs...
+const SUPABASE_URL = 'https://olmbbgcxzmdczhvrytzd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbWJiZ2N4em1kY3podnJ5dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0ODM3MjMsImV4cCI6MjA4NjA1OTcyM30.WJ12qyNFsQrAf7BWGp0n1M3vpVR2VQtmYUcNbU3TGhE';
