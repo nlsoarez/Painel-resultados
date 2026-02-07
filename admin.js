@@ -1,29 +1,40 @@
-// Verificar configuração do Firebase
-if (!FIREBASE_CONFIG.apiKey) {
+// Verificar configuração do Supabase
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   document.getElementById('config-alerta').style.display = 'block';
 } else {
-  firebase.initializeApp(FIREBASE_CONFIG);
-  const auth = firebase.auth();
-  const storage = firebase.storage();
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const loginSection = document.getElementById('login-section');
   const uploadSection = document.getElementById('upload-section');
   const loginError = document.getElementById('login-error');
 
-  // Monitorar estado de autenticação
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      loginSection.style.display = 'none';
-      uploadSection.style.display = 'block';
-      document.getElementById('user-info').textContent = 'Logado como: ' + user.email;
+  // Verificar sessão ao carregar
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      mostrarUpload(session.user);
+    } else {
+      loginSection.style.display = 'block';
+    }
+  });
+
+  // Monitorar mudanças de auth
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      mostrarUpload(session.user);
     } else {
       loginSection.style.display = 'block';
       uploadSection.style.display = 'none';
     }
   });
 
+  function mostrarUpload(user) {
+    loginSection.style.display = 'none';
+    uploadSection.style.display = 'block';
+    document.getElementById('user-info').textContent = 'Logado como: ' + user.email;
+  }
+
   // Login
-  document.getElementById('login-btn').addEventListener('click', () => {
+  document.getElementById('login-btn').addEventListener('click', async () => {
     const email = document.getElementById('admin-email').value.trim();
     const password = document.getElementById('admin-password').value;
     loginError.textContent = '';
@@ -33,10 +44,10 @@ if (!FIREBASE_CONFIG.apiKey) {
       return;
     }
 
-    auth.signInWithEmailAndPassword(email, password)
-      .catch(err => {
-        loginError.textContent = 'Erro: e-mail ou senha inválidos.';
-      });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      loginError.textContent = 'Erro: e-mail ou senha inválidos.';
+    }
   });
 
   // Enter para login
@@ -45,7 +56,9 @@ if (!FIREBASE_CONFIG.apiKey) {
   });
 
   // Logout
-  document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    supabase.auth.signOut();
+  });
 
   // Limpar NaN/Infinity do JSON exportado por Python/Pandas
   function limparJson(texto) {
@@ -56,10 +69,9 @@ if (!FIREBASE_CONFIG.apiKey) {
   }
 
   // Upload de arquivo
-  function uploadArquivo(fileInputId, nomeArquivo, statusId, progressId, btnId) {
+  async function uploadArquivo(fileInputId, nomeArquivo, statusId, btnId) {
     const fileInput = document.getElementById(fileInputId);
     const statusEl = document.getElementById(statusId);
-    const progressEl = document.getElementById(progressId);
     const btn = document.getElementById(btnId);
 
     if (!fileInput.files[0]) {
@@ -68,14 +80,14 @@ if (!FIREBASE_CONFIG.apiKey) {
       return;
     }
 
-    const file = fileInput.files[0];
     btn.disabled = true;
     statusEl.className = 'upload-status progress';
     statusEl.textContent = 'Lendo arquivo...';
 
+    const file = fileInput.files[0];
     const reader = new FileReader();
 
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
       try {
         const textoLimpo = limparJson(e.target.result);
         const dados = JSON.parse(textoLimpo);
@@ -84,41 +96,24 @@ if (!FIREBASE_CONFIG.apiKey) {
           throw new Error('O arquivo deve conter um array JSON [ {...}, {...} ]');
         }
 
-        // Criar blob com JSON limpo e enviar ao Firebase Storage
+        statusEl.textContent = 'Enviando ' + dados.length + ' registros...';
+
+        // Upload para Supabase Storage (upsert sobrescreve se já existir)
         const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
-        const ref = storage.ref(nomeArquivo);
-        const uploadTask = ref.put(blob);
+        const { error } = await supabase.storage
+          .from('dados')
+          .upload(nomeArquivo, blob, { upsert: true });
 
-        // Barra de progresso
-        progressEl.innerHTML = '<div class="progress-bar"><div class="progress-bar-fill" style="width:0%"></div></div>';
-        const fill = progressEl.querySelector('.progress-bar-fill');
+        if (error) throw error;
 
-        uploadTask.on('state_changed',
-          snapshot => {
-            const pct = (snapshot.bytesTransferred / snapshot.totalBytes * 100).toFixed(0);
-            fill.style.width = pct + '%';
-            statusEl.textContent = 'Enviando... ' + pct + '%';
-          },
-          error => {
-            statusEl.className = 'upload-status error';
-            statusEl.textContent = 'Erro no upload: ' + error.message;
-            progressEl.innerHTML = '';
-            btn.disabled = false;
-          },
-          () => {
-            statusEl.className = 'upload-status success';
-            statusEl.textContent = 'Upload concluído! ' + dados.length + ' registros enviados.';
-            progressEl.innerHTML = '';
-            btn.disabled = false;
-            fileInput.value = '';
-          }
-        );
+        statusEl.className = 'upload-status success';
+        statusEl.textContent = 'Upload concluído! ' + dados.length + ' registros enviados.';
+        fileInput.value = '';
       } catch (err) {
         statusEl.className = 'upload-status error';
-        statusEl.textContent = 'Erro ao processar: ' + err.message;
-        progressEl.innerHTML = '';
-        btn.disabled = false;
+        statusEl.textContent = 'Erro: ' + err.message;
       }
+      btn.disabled = false;
     };
 
     reader.onerror = function() {
@@ -132,10 +127,10 @@ if (!FIREBASE_CONFIG.apiKey) {
 
   // Botões de upload
   document.getElementById('btn-upload-empresarial').addEventListener('click', () => {
-    uploadArquivo('file-empresarial', 'dados_empresarial.json', 'status-empresarial', 'progress-empresarial', 'btn-upload-empresarial');
+    uploadArquivo('file-empresarial', 'dados_empresarial.json', 'status-empresarial', 'btn-upload-empresarial');
   });
 
   document.getElementById('btn-upload-residencial').addEventListener('click', () => {
-    uploadArquivo('file-residencial', 'dados_residencial.json', 'status-residencial', 'progress-residencial', 'btn-upload-residencial');
+    uploadArquivo('file-residencial', 'dados_residencial.json', 'status-residencial', 'btn-upload-residencial');
   });
 }
