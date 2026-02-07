@@ -32,6 +32,9 @@ employees.forEach(emp => {
   employeeLookup[emp.Matricula] = emp;
 });
 
+// Controle de consulta para evitar race conditions
+let consultaAtual = 0;
+
 // Meta definitions - Updated with new targets
 const METAS = {
   "ETIT": {
@@ -90,6 +93,110 @@ function formatarValor(valor) {
   // Mantém a exibição original para valores não numéricos
   if (valor === "-" || valor === "–" || valor === "_" || valor === "Não informado") return valor;
   return valor;
+}
+
+// === NOVA CAMADA DE DADOS - INCIDENTES ===
+
+async function carregarIncidentes(matricula, setor) {
+  const arquivo = setor === 'EMPRESARIAL' ? 'dados_empresarial.json' : 'dados_residencial.json';
+  try {
+    const response = await fetch(arquivo);
+    if (!response.ok) return [];
+    const dados = await response.json();
+    const campoLogin = setor === 'EMPRESARIAL' ? 'LOGIN_ACIONOU' : 'LOGIN_ACIONAMENTO';
+    return dados.filter(d =>
+      d[campoLogin] && d[campoLogin].toString().toUpperCase() === matricula.toUpperCase()
+    );
+  } catch {
+    return [];
+  }
+}
+
+function agruparPorIndicador(incidentes) {
+  const grupos = {};
+  incidentes.forEach(inc => {
+    const nome = inc.INDICADOR_NOME;
+    if (!grupos[nome]) grupos[nome] = { aderentes: [], naoAderentes: [] };
+    if (inc.INDICADOR === 1) {
+      grupos[nome].aderentes.push(inc);
+    } else {
+      grupos[nome].naoAderentes.push(inc);
+    }
+  });
+  return grupos;
+}
+
+function formatarDataIncidente(dataStr) {
+  if (!dataStr) return '-';
+  const d = new Date(dataStr);
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function renderIncidenteEmpresarial(inc) {
+  return `<div class="incidente-card">
+    <div class="incidente-header">${inc.NOTA || '-'}</div>
+    <div class="incidente-grid">
+      <div class="incidente-detalhe"><strong>Data:</strong> ${formatarDataIncidente(inc.DT_ACIONAMENTO)}</div>
+      <div class="incidente-detalhe"><strong>Local:</strong> ${inc.IN_CIDADE_UF || '-'}</div>
+      <div class="incidente-detalhe"><strong>Causa:</strong> ${inc.CAUSA || '-'}</div>
+      <div class="incidente-detalhe"><strong>Tempo p/ acionar:</strong> ${inc.TEMPO_PARA_ACIONAR != null ? inc.TEMPO_PARA_ACIONAR + ' min' : '-'}</div>
+      <div class="incidente-detalhe"><strong>Tipo RAL:</strong> ${inc.TIPO_RAL || '-'}</div>
+      <div class="incidente-detalhe"><strong>Área:</strong> ${inc.AREA_ENVOLVIDA || '-'}</div>
+    </div>
+  </div>`;
+}
+
+function renderIncidenteResidencial(inc) {
+  return `<div class="incidente-card">
+    <div class="incidente-header">${inc.OUTAGE || '-'}</div>
+    <div class="incidente-grid">
+      <div class="incidente-detalhe"><strong>Data:</strong> ${formatarDataIncidente(inc.DT_ACIONAMENTO)}</div>
+      <div class="incidente-detalhe"><strong>Local:</strong> ${inc.IN_CIDADE_UF || '-'}</div>
+      <div class="incidente-detalhe"><strong>Tecnologia:</strong> ${inc.TECNOLOGIA || '-'}</div>
+      <div class="incidente-detalhe"><strong>Natureza:</strong> ${inc.NATUREZA || '-'}</div>
+      <div class="incidente-detalhe"><strong>Sintoma:</strong> ${inc.SINTOMA || '-'}</div>
+      <div class="incidente-detalhe"><strong>Fechamento:</strong> ${inc.FECHAMENTO || '-'}</div>
+      <div class="incidente-detalhe"><strong>Solução:</strong> ${inc.SOLUCAO || '-'}</div>
+    </div>
+  </div>`;
+}
+
+function renderSecaoIncidentes(grupos, setor) {
+  let html = '<div class="incidentes-section"><h3>Detalhamento de Incidentes</h3>';
+
+  for (const [indicador, dados] of Object.entries(grupos)) {
+    const totalAd = dados.aderentes.length;
+    const totalNao = dados.naoAderentes.length;
+    const total = totalAd + totalNao;
+
+    html += `<div class="indicador-grupo">
+      <div class="indicador-grupo-titulo">${indicador}</div>
+      <div class="indicador-resumo">
+        <span class="badge aderente">Aderentes: ${totalAd}</span>
+        <span class="badge nao-aderente">Não Aderentes: ${totalNao}</span>
+        <span class="badge total">Total: ${total}</span>
+      </div>`;
+
+    if (totalNao > 0) {
+      html += '<div class="incidentes-nao-aderentes">';
+      html += '<p class="incidentes-subtitulo">Incidentes Não Aderentes:</p>';
+      dados.naoAderentes.forEach(inc => {
+        html += setor === 'EMPRESARIAL'
+          ? renderIncidenteEmpresarial(inc)
+          : renderIncidenteResidencial(inc);
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
 }
 
 function handleKeyPress(event) {
@@ -169,6 +276,21 @@ function consultar() {
     <div class="certification ${certificando ? 'success' : 'warning'}">
       ${certificando ? '✅ Certificando' : '❌ Não certificando'}
     </div>`;
+
+  // === Carregar detalhamento de incidentes ===
+  const idConsulta = ++consultaAtual;
+  resultadoDiv.insertAdjacentHTML('beforeend',
+    '<div id="incidentes-loading" class="incidentes-loading">Carregando detalhamento de incidentes...</div>');
+
+  carregarIncidentes(matricula, setor).then(incidentes => {
+    if (idConsulta !== consultaAtual) return;
+    const loadingEl = document.getElementById('incidentes-loading');
+    if (loadingEl) loadingEl.remove();
+    if (incidentes.length > 0) {
+      const grupos = agruparPorIndicador(incidentes);
+      resultadoDiv.insertAdjacentHTML('beforeend', renderSecaoIncidentes(grupos, setor));
+    }
+  });
 }
 
 // Event listeners
