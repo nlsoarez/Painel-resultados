@@ -92,22 +92,22 @@ function formatarValor(valor) {
   return valor;
 }
 
-// === NOVA CAMADA DE DADOS - INCIDENTES (Firebase Storage) ===
+// === NOVA CAMADA DE DADOS - INCIDENTES (Supabase Storage) ===
 
 // Dados carregados da nuvem
 let dadosEmpresarial = [];
 let dadosResidencial = [];
 
 function carregarDadosNuvem() {
-  if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG.storageBucket) return;
-  const base = 'https://firebasestorage.googleapis.com/v0/b/' + FIREBASE_CONFIG.storageBucket + '/o';
+  if (typeof SUPABASE_URL === 'undefined' || !SUPABASE_URL) return;
+  const base = SUPABASE_URL + '/storage/v1/object/public/dados';
 
-  fetch(base + '/dados_empresarial.json?alt=media')
+  fetch(base + '/dados_empresarial.json')
     .then(r => r.ok ? r.json() : [])
     .then(data => { dadosEmpresarial = data; })
     .catch(() => {});
 
-  fetch(base + '/dados_residencial.json?alt=media')
+  fetch(base + '/dados_residencial.json')
     .then(r => r.ok ? r.json() : [])
     .then(data => { dadosResidencial = data; })
     .catch(() => {});
