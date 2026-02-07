@@ -92,7 +92,26 @@ function formatarValor(valor) {
   return valor;
 }
 
-// === NOVA CAMADA DE DADOS - INCIDENTES ===
+// === NOVA CAMADA DE DADOS - INCIDENTES (Firebase Storage) ===
+
+// Dados carregados da nuvem
+let dadosEmpresarial = [];
+let dadosResidencial = [];
+
+function carregarDadosNuvem() {
+  if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG.storageBucket) return;
+  const base = 'https://firebasestorage.googleapis.com/v0/b/' + FIREBASE_CONFIG.storageBucket + '/o';
+
+  fetch(base + '/dados_empresarial.json?alt=media')
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { dadosEmpresarial = data; })
+    .catch(() => {});
+
+  fetch(base + '/dados_residencial.json?alt=media')
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { dadosResidencial = data; })
+    .catch(() => {});
+}
 
 function buscarIncidentes(matricula, setor) {
   const dados = setor === 'EMPRESARIAL' ? dadosEmpresarial : dadosResidencial;
@@ -277,6 +296,7 @@ function consultar() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
+  carregarDadosNuvem();
   matriculaInput.addEventListener('keypress', handleKeyPress);
   consultarBtn.addEventListener('click', consultar);
 });

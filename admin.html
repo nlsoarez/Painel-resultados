@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Painel de Indicadores Claro</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-header { margin-bottom: 10px; }
+        .admin-header p { font-size: 0.85em; color: #666; margin: 5px 0 0; }
+
+        #config-alerta {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+            text-align: left;
+            line-height: 1.7;
+        }
+        #config-alerta strong { color: var(--warning-color); }
+        #config-alerta code {
+            background: #f0f0f0;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        #login-section .input-group input {
+            width: 100%;
+            padding: 10px 12px;
+            margin: 6px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .upload-area {
+            background: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .upload-area h3 {
+            font-size: 14px;
+            margin: 0 0 10px;
+            color: var(--text-color);
+        }
+        .upload-area input[type="file"] {
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: block;
+            width: 100%;
+        }
+        .upload-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .upload-btn:hover { background: var(--primary-hover); }
+        .upload-btn:disabled { background: #999; cursor: not-allowed; }
+
+        .upload-status {
+            margin-top: 8px;
+            font-size: 0.82em;
+            min-height: 20px;
+        }
+        .upload-status.success { color: var(--success-color); font-weight: 600; }
+        .upload-status.error { color: var(--warning-color); font-weight: 600; }
+        .upload-status.progress { color: #666; font-style: italic; }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        #logout-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: #666;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #logout-btn:hover { background: var(--light-gray); }
+
+        .user-info {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: var(--light-gray);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Claro.svg"
+             alt="Logo Claro" class="logo" loading="lazy">
+
+        <div class="admin-header">
+            <h1>Painel Administrativo</h1>
+            <p>Upload de dados de incidentes</p>
+        </div>
+
+        <div id="config-alerta" style="display:none">
+            <strong>Firebase não configurado.</strong><br>
+            Edite o arquivo <code>config.js</code> com as credenciais do seu projeto Firebase.<br>
+            Consulte as instruções dentro do próprio arquivo.
+        </div>
+
+        <!-- Login -->
+        <div id="login-section" style="display:none">
+            <div class="input-group">
+                <input type="email" id="admin-email" placeholder="E-mail do administrador">
+                <input type="password" id="admin-password" placeholder="Senha"
+                       aria-label="Senha do administrador">
+                <button id="login-btn" class="upload-btn" style="width:100%; padding:12px; font-size:15px;">
+                    Entrar
+                </button>
+            </div>
+            <div id="login-error" class="upload-status error"></div>
+        </div>
+
+        <!-- Upload (visível após login) -->
+        <div id="upload-section" style="display:none">
+            <div class="user-info" id="user-info"></div>
+
+            <div class="upload-area">
+                <h3>Dados Empresarial</h3>
+                <input type="file" id="file-empresarial" accept=".json,.csv">
+                <button class="upload-btn" id="btn-upload-empresarial">Enviar Empresarial</button>
+                <div id="status-empresarial" class="upload-status"></div>
+                <div id="progress-empresarial"></div>
+            </div>
+
+            <div class="upload-area">
+                <h3>Dados Residencial</h3>
+                <input type="file" id="file-residencial" accept=".json,.csv">
+                <button class="upload-btn" id="btn-upload-residencial">Enviar Residencial</button>
+                <div id="status-residencial" class="upload-status"></div>
+                <div id="progress-residencial"></div>
+            </div>
+
+            <button id="logout-btn">Sair</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
