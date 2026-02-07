@@ -32,9 +32,6 @@ employees.forEach(emp => {
   employeeLookup[emp.Matricula] = emp;
 });
 
-// Controle de consulta para evitar race conditions
-let consultaAtual = 0;
-
 // Meta definitions - Updated with new targets
 const METAS = {
   "ETIT": {
@@ -95,21 +92,33 @@ function formatarValor(valor) {
   return valor;
 }
 
-// === NOVA CAMADA DE DADOS - INCIDENTES ===
+// === NOVA CAMADA DE DADOS - INCIDENTES (Firebase Storage) ===
 
-async function carregarIncidentes(matricula, setor) {
-  const arquivo = setor === 'EMPRESARIAL' ? 'dados_empresarial.json' : 'dados_residencial.json';
-  try {
-    const response = await fetch(arquivo);
-    if (!response.ok) return [];
-    const dados = await response.json();
-    const campoLogin = setor === 'EMPRESARIAL' ? 'LOGIN_ACIONOU' : 'LOGIN_ACIONAMENTO';
-    return dados.filter(d =>
-      d[campoLogin] && d[campoLogin].toString().toUpperCase() === matricula.toUpperCase()
-    );
-  } catch {
-    return [];
-  }
+// Dados carregados da nuvem
+let dadosEmpresarial = [];
+let dadosResidencial = [];
+
+function carregarDadosNuvem() {
+  if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG.storageBucket) return;
+  const base = 'https://firebasestorage.googleapis.com/v0/b/' + FIREBASE_CONFIG.storageBucket + '/o';
+
+  fetch(base + '/dados_empresarial.json?alt=media')
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { dadosEmpresarial = data; })
+    .catch(() => {});
+
+  fetch(base + '/dados_residencial.json?alt=media')
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { dadosResidencial = data; })
+    .catch(() => {});
+}
+
+function buscarIncidentes(matricula, setor) {
+  const dados = setor === 'EMPRESARIAL' ? dadosEmpresarial : dadosResidencial;
+  const campoLogin = setor === 'EMPRESARIAL' ? 'LOGIN_ACIONOU' : 'LOGIN_ACIONAMENTO';
+  return dados.filter(d =>
+    d[campoLogin] && d[campoLogin].toString().toUpperCase() === matricula.toUpperCase()
+  );
 }
 
 function agruparPorIndicador(incidentes) {
@@ -277,24 +286,17 @@ function consultar() {
       ${certificando ? '✅ Certificando' : '❌ Não certificando'}
     </div>`;
 
-  // === Carregar detalhamento de incidentes ===
-  const idConsulta = ++consultaAtual;
-  resultadoDiv.insertAdjacentHTML('beforeend',
-    '<div id="incidentes-loading" class="incidentes-loading">Carregando detalhamento de incidentes...</div>');
-
-  carregarIncidentes(matricula, setor).then(incidentes => {
-    if (idConsulta !== consultaAtual) return;
-    const loadingEl = document.getElementById('incidentes-loading');
-    if (loadingEl) loadingEl.remove();
-    if (incidentes.length > 0) {
-      const grupos = agruparPorIndicador(incidentes);
-      resultadoDiv.insertAdjacentHTML('beforeend', renderSecaoIncidentes(grupos, setor));
-    }
-  });
+  // === Exibir detalhamento de incidentes ===
+  const incidentes = buscarIncidentes(matricula, setor);
+  if (incidentes.length > 0) {
+    const grupos = agruparPorIndicador(incidentes);
+    resultadoDiv.insertAdjacentHTML('beforeend', renderSecaoIncidentes(grupos, setor));
+  }
 }
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
+  carregarDadosNuvem();
   matriculaInput.addEventListener('keypress', handleKeyPress);
   consultarBtn.addEventListener('click', consultar);
 });
