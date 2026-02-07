@@ -1,4 +1,4 @@
-[
+const dadosResidencial = [
   {
     "OUTAGE": "14377852",
     "INDICADOR_NOME": "ASSERTIVIDADE ACIONAMENTO OUTAGE",
@@ -233,4 +233,4 @@
     "DIA": 1,
     "HORA": 13
   }
-]
+];

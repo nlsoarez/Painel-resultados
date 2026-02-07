@@ -1,4 +1,4 @@
-[
+const dadosEmpresarial = [
   {
     "INDICADOR_NOME": "ETIT POR EVENTO",
     "SISTEMA": "SIR",
@@ -171,4 +171,4 @@
     "META": null,
     "META_VOLUME": null
   }
-]
+];
