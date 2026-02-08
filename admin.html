@@ -331,19 +331,212 @@
         }
         .empty-state p { font-size: 14px; }
 
+        /* === EDITS ANALYSIS TAB === */
+        .edits-loading {
+            text-align: center; padding: 60px 20px; color: var(--text-muted);
+        }
+        .edits-loading .spinner {
+            width: 36px; height: 36px; border: 3px solid var(--border);
+            border-top-color: var(--claro-red); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .edits-kpi-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 14px; margin-bottom: 24px;
+        }
+        .edits-kpi-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 20px; box-shadow: var(--shadow-sm); text-align: center;
+            border-top: 3px solid var(--border);
+        }
+        .edits-kpi-card.total { border-top-color: var(--blue); }
+        .edits-kpi-card.ganhos { border-top-color: var(--green); }
+        .edits-kpi-card.perdidos { border-top-color: var(--red); }
+        .edits-kpi-card.pct { border-top-color: var(--orange); }
+        .edits-kpi-number {
+            font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 4px;
+        }
+        .edits-kpi-label {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-secondary);
+        }
+
+        .edits-section { margin-bottom: 28px; }
+        .edits-section-title {
+            font-size: 15px; font-weight: 700; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .edits-section-title .icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+        .icon.vol { background: var(--blue-bg); color: var(--blue); }
+        .icon.win { background: var(--green-bg); color: var(--green); }
+        .icon.loss { background: var(--red-bg); color: var(--red); }
+        .icon.rate { background: var(--orange-bg); color: var(--orange); }
+        .icon.group { background: rgba(139,92,246,0.08); color: #8B5CF6; }
+        .icon.sector { background: rgba(236,72,153,0.08); color: #EC4899; }
+
+        .edits-table-wrapper {
+            background: var(--card); border-radius: var(--radius);
+            box-shadow: var(--shadow-sm); overflow-x: auto;
+        }
+        .edits-table {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        .edits-table th {
+            background: var(--bg); padding: 12px 14px;
+            text-align: left; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-secondary); white-space: nowrap;
+            cursor: pointer; user-select: none;
+        }
+        .edits-table th:hover { color: var(--text); }
+        .edits-table th .sort-arrow { font-size: 10px; margin-left: 4px; }
+        .edits-table td {
+            padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap;
+        }
+        .edits-table tbody tr:hover { background: rgba(241,245,249,0.5); }
+        .edits-table .rank-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; background: var(--bg); color: var(--text-secondary);
+        }
+        .edits-table .rank-num.gold { background: #FEF3C7; color: #D97706; }
+        .edits-table .rank-num.silver { background: #F1F5F9; color: #64748B; }
+        .edits-table .rank-num.bronze { background: #FED7AA; color: #EA580C; }
+
+        .bar-cell { min-width: 160px; }
+        .bar-track {
+            height: 20px; background: var(--bg); border-radius: 10px;
+            overflow: hidden; display: flex; position: relative;
+        }
+        .bar-fill-green {
+            height: 100%; background: var(--green); transition: width 0.5s ease;
+        }
+        .bar-fill-red {
+            height: 100%; background: var(--red); transition: width 0.5s ease;
+        }
+        .bar-label {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 10px; font-weight: 700; color: var(--text);
+            text-shadow: 0 0 3px white, 0 0 3px white;
+        }
+
+        .setor-badge-sm {
+            font-size: 10px; font-weight: 600; padding: 2px 8px;
+            border-radius: 10px; background: var(--bg); color: var(--text-secondary);
+        }
+
+        .podium-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px; margin-bottom: 24px;
+        }
+        .podium-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 16px; box-shadow: var(--shadow-sm);
+        }
+        .podium-card .podium-title {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-secondary);
+            margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        }
+        .podium-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 0; border-bottom: 1px solid rgba(226,232,240,0.5);
+        }
+        .podium-item:last-child { border-bottom: none; }
+        .podium-pos {
+            width: 22px; height: 22px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; flex-shrink: 0;
+        }
+        .podium-pos.p1 { background: #FEF3C7; color: #D97706; }
+        .podium-pos.p2 { background: #F1F5F9; color: #64748B; }
+        .podium-pos.p3 { background: #FED7AA; color: #EA580C; }
+        .podium-pos.p4, .podium-pos.p5 { background: var(--bg); color: var(--text-muted); }
+        .podium-info { flex: 1; min-width: 0; }
+        .podium-name {
+            font-size: 12px; font-weight: 600; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .podium-value { font-size: 14px; font-weight: 800; flex-shrink: 0; }
+        .podium-value.green { color: var(--green); }
+        .podium-value.red { color: var(--red); }
+        .podium-value.blue { color: var(--blue); }
+        .podium-value.orange { color: var(--orange); }
+
+        .sector-compare {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+        }
+        .sector-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 20px; box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--border);
+        }
+        .sector-card.emp { border-top-color: var(--blue); }
+        .sector-card.res { border-top-color: #8B5CF6; }
+        .sector-card h4 {
+            font-size: 13px; font-weight: 700; margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+        .sector-stat-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0; border-bottom: 1px solid rgba(226,232,240,0.5);
+            font-size: 13px;
+        }
+        .sector-stat-row:last-child { border-bottom: none; }
+        .sector-stat-label { color: var(--text-secondary); }
+        .sector-stat-val { font-weight: 700; }
+
+        .indicator-breakdown-table {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        .indicator-breakdown-table th {
+            background: var(--bg); padding: 10px 14px;
+            text-align: left; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .indicator-breakdown-table td {
+            padding: 10px 14px; border-bottom: 1px solid var(--border);
+        }
+        .indicator-breakdown-table tbody tr:hover { background: rgba(241,245,249,0.5); }
+        .pct-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 10px;
+            font-size: 11px; font-weight: 700;
+        }
+        .pct-badge.high { background: var(--green-bg); color: var(--green); }
+        .pct-badge.medium { background: var(--orange-bg); color: var(--orange); }
+        .pct-badge.low { background: var(--red-bg); color: var(--red); }
+
+        .edits-empty {
+            text-align: center; padding: 60px 20px; color: var(--text-muted);
+        }
+        .edits-empty p { font-size: 14px; margin-bottom: 8px; }
+        .edits-empty small { font-size: 12px; }
+
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
             .header-inner { flex-direction: column; gap: 12px; text-align: center; }
             .header-left { flex-direction: column; gap: 8px; }
             .header-right { justify-content: center; }
             .kpi-row { grid-template-columns: 1fr 1fr; }
+            .edits-kpi-row { grid-template-columns: 1fr 1fr; }
             .highlights-grid { grid-template-columns: 1fr; }
             .upload-grid { grid-template-columns: 1fr; }
+            .sector-compare { grid-template-columns: 1fr; }
+            .podium-grid { grid-template-columns: 1fr 1fr; }
             .data-table { font-size: 12px; }
             .data-table th, .data-table td { padding: 8px 10px; }
         }
         @media (max-width: 480px) {
             .kpi-row { grid-template-columns: 1fr; }
+            .edits-kpi-row { grid-template-columns: 1fr 1fr; }
+            .podium-grid { grid-template-columns: 1fr; }
             .tabs-nav { flex-wrap: wrap; }
             .tab-btn { font-size: 12px; padding: 8px 10px; }
         }
@@ -395,6 +588,7 @@
             <!-- TABS -->
             <nav class="tabs-nav">
                 <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" data-tab="edits">An&aacute;lise de Edits</button>
                 <button class="tab-btn" data-tab="individual">Vis&atilde;o Individual</button>
                 <button class="tab-btn" data-tab="upload">Upload de Dados</button>
             </nav>
@@ -413,6 +607,16 @@
                     <div>
                         <div class="section-title"><span class="dot red"></span> Pontos de Aten&ccedil;&atilde;o</div>
                         <div class="highlight-panel" id="atencao-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: EDITS ANALYSIS -->
+            <div class="tab-panel" id="panel-edits">
+                <div id="edits-content">
+                    <div class="edits-loading" id="edits-loading">
+                        <div class="spinner"></div>
+                        <p>Carregando dados de edits...</p>
                     </div>
                 </div>
             </div>
