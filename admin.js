@@ -1,56 +1,372 @@
-// Verificar configuração do Supabase
+// =============================================
+// Dados da equipe (mesma fonte do script.js)
+// =============================================
+const employees = [
+  { "Matricula": "N6088107", "Nome": "LEANDRO GONÇALVES DE CARVALHO", "Setor": "EMPRESARIAL", "ETIT": "-", "DPA": "77%", "Assertividade": "-" },
+  { "Matricula": "N5619600", "Nome": "BRUNO COSTA BUCARD", "Setor": "EMPRESARIAL", "ETIT": "-", "DPA": "63%", "Assertividade": "-" },
+  { "Matricula": "N0238475", "Nome": "MARLEY MARQUES RIBEIRO", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "61%", "Assertividade": "-" },
+  { "Matricula": "N0189105", "Nome": "IGOR MARCELINO DE MARINS", "Setor": "EMPRESARIAL", "ETIT": "94%", "DPA": "54%", "Assertividade": "-" },
+  { "Matricula": "N5737414", "Nome": "SANDRO DA SILVA CARVALHO", "Setor": "EMPRESARIAL", "ETIT": "96%", "DPA": "70%", "Assertividade": "-" },
+  { "Matricula": "N5713690", "Nome": "GABRIELA TAVARES DA SILVA", "Setor": "EMPRESARIAL", "ETIT": "100%", "DPA": "75%", "Assertividade": "-" },
+  { "Matricula": "N5802257", "Nome": "MAGNO FERRAREZ DE MORAIS", "Setor": "EMPRESARIAL", "ETIT": "100%", "DPA": "58%", "Assertividade": "-" },
+  { "Matricula": "F201714", "Nome": "FERNANDA MESQUITA DE FREITAS", "Setor": "EMPRESARIAL", "ETIT": "-", "DPA": "-", "Assertividade": "-" },
+  { "Matricula": "N6173055", "Nome": "JEFFERSON LUIS GONÇALVES COITINHO", "Setor": "EMPRESARIAL", "ETIT": "-", "DPA": "86%", "Assertividade": "-" },
+  { "Matricula": "N0125317", "Nome": "ROBERTO SILVA DO NASCIMENTO", "Setor": "EMPRESARIAL", "ETIT": "-", "DPA": "29%", "Assertividade": "-" },
+  { "Matricula": "F218860", "Nome": "ALDENES MARQUES IDALINO DA SILVA", "Setor": "EMPRESARIAL", "ETIT": "100%", "DPA": "75%", "Assertividade": "-" },
+  { "Matricula": "N5819183", "Nome": "RODRIGO PIRES BERNARDINO", "Setor": "EMPRESARIAL", "ETIT": "92%", "DPA": "65%", "Assertividade": "-" },
+  { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "EMPRESARIAL", "ETIT": "75%", "DPA": "-", "Assertividade": "-" },
+  { "Matricula": "N5932064", "Nome": "MONICA DA SILVA RODRIGUES", "Setor": "EMPRESARIAL", "ETIT": "86%", "DPA": "105%", "Assertividade": "-" },
+  { "Matricula": "N5923221", "Nome": "KELLY PINHEIRO LIRA", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "55%", "Assertividade": "-" },
+  { "Matricula": "N5772086", "Nome": "THIAGO PEREIRA DA SILVA", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "85%", "Assertividade": "100%" },
+  { "Matricula": "N0239871", "Nome": "LEONARDO FERREIRA LIMA DE ALMEIDA", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "100%", "Assertividade": "100%" },
+  { "Matricula": "N5577565", "Nome": "MARISTELLA MARCIA DOS SANTOS", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "86%", "Assertividade": "100%" },
+  { "Matricula": "N5972428", "Nome": "CRISTIANE HERMOGENES DA SILVA", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "82%", "Assertividade": "91%" },
+  { "Matricula": "N4014011", "Nome": "ALAN MARINHO DIAS", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "20%", "Assertividade": "-" },
+  { "Matricula": "F106664", "Nome": "RAISSA LIMA DE OLIVEIRA", "Setor": "RESIDENCIAL", "ETIT": "50%", "DPA": "80%", "Assertividade": "100%" }
+];
+
+// =============================================
+// Metas (mesma lógica do script.js)
+// =============================================
+const METAS = {
+  ETIT: { "MÓVEL": 80, "RESIDENCIAL": 90, "EMPRESARIAL": 90 },
+  Assertividade: { "MÓVEL": 85, "RESIDENCIAL": 70, "EMPRESARIAL": null },
+  DPA: { CERTIFICACAO: 85, INDIVIDUAL: 90 }
+};
+
+function parseVal(v) {
+  if (!v || v === '-' || v === '–' || v === '_') return null;
+  return parseFloat(v.replace('%', '').replace(',', '.'));
+}
+
+function metaOk(valor, setor, tipo, metaType) {
+  const s = setor.toUpperCase();
+  if (tipo === 'Assertividade' && s === 'EMPRESARIAL') return true;
+  const num = parseVal(valor);
+  if (num === null) return true;
+  if (tipo === 'DPA') return num >= METAS.DPA[metaType === 'cert' ? 'CERTIFICACAO' : 'INDIVIDUAL'];
+  if (tipo === 'ETIT') return num >= (METAS.ETIT[s] || 0);
+  return num >= (METAS.Assertividade[s] || 0);
+}
+
+function isCertificando(emp) {
+  const s = emp.Setor.toUpperCase();
+  const etitOk = metaOk(emp.ETIT, s, 'ETIT');
+  const assertOk = s === 'EMPRESARIAL' ? true : metaOk(emp.Assertividade, s, 'Assertividade');
+  const dpaOk = metaOk(emp.DPA, s, 'DPA', 'cert');
+  return etitOk && assertOk && dpaOk;
+}
+
+function getInitials(nome) {
+  const p = nome.split(' ');
+  return p.length >= 2 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : p[0][0].toUpperCase();
+}
+
+function firstName(nome) {
+  const parts = nome.split(' ');
+  return parts[0].charAt(0) + parts[0].slice(1).toLowerCase();
+}
+
+// =============================================
+// Análise da equipe
+// =============================================
+function analyzeTeam() {
+  const certificando = [];
+  const naoCertificando = [];
+
+  employees.forEach(emp => {
+    const cert = isCertificando(emp);
+    const s = emp.Setor.toUpperCase();
+    const problems = [];
+
+    if (!metaOk(emp.ETIT, s, 'ETIT')) problems.push('ETIT');
+    if (!metaOk(emp.DPA, s, 'DPA', 'cert')) problems.push('DPA');
+    if (s !== 'EMPRESARIAL' && !metaOk(emp.Assertividade, s, 'Assertividade')) problems.push('Assert.');
+
+    const obj = { ...emp, cert, problems };
+    if (cert) certificando.push(obj);
+    else naoCertificando.push(obj);
+  });
+
+  // Média DPA da equipe
+  let dpaSoma = 0, dpaCount = 0;
+  employees.forEach(emp => {
+    const v = parseVal(emp.DPA);
+    if (v !== null) { dpaSoma += v; dpaCount++; }
+  });
+  const mediaDpa = dpaCount > 0 ? Math.round(dpaSoma / dpaCount) : 0;
+
+  return { certificando, naoCertificando, mediaDpa };
+}
+
+// =============================================
+// Render Dashboard
+// =============================================
+function renderDashboard() {
+  const { certificando, naoCertificando, mediaDpa } = analyzeTeam();
+  const total = employees.length;
+
+  // KPI cards
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-icon team">&#128101;</div>
+      <div class="kpi-number">${total}</div>
+      <div class="kpi-label">Colaboradores</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon cert">&#10003;</div>
+      <div class="kpi-number" style="color:var(--green)">${certificando.length}</div>
+      <div class="kpi-label">Certificando</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon alert">&#10007;</div>
+      <div class="kpi-number" style="color:var(--red)">${naoCertificando.length}</div>
+      <div class="kpi-label">N&atilde;o Certificando</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon avg">&#9646;</div>
+      <div class="kpi-number" style="color:var(--orange)">${mediaDpa}%</div>
+      <div class="kpi-label">M&eacute;dia DPA</div>
+    </div>
+  `;
+
+  // Destaques (certificando)
+  const destaquesEl = document.getElementById('destaques-list');
+  if (certificando.length === 0) {
+    destaquesEl.innerHTML = '<div class="empty-state"><p>Nenhum colaborador certificando</p></div>';
+  } else {
+    destaquesEl.innerHTML = certificando.map(emp => `
+      <div class="emp-row">
+        <div class="emp-avatar green">${getInitials(emp.Nome)}</div>
+        <div class="emp-info">
+          <div class="emp-name-sm">${firstName(emp.Nome)} — ${emp.Setor}</div>
+          <div class="emp-badges">
+            <span class="mini-badge ok">ETIT ${emp.ETIT}</span>
+            <span class="mini-badge ok">DPA ${emp.DPA}</span>
+            ${emp.Setor.toUpperCase() !== 'EMPRESARIAL'
+              ? `<span class="mini-badge ok">Assert. ${emp.Assertividade}</span>`
+              : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Pontos de atenção (não certificando)
+  const atencaoEl = document.getElementById('atencao-list');
+  if (naoCertificando.length === 0) {
+    atencaoEl.innerHTML = '<div class="empty-state"><p>Todos certificando!</p></div>';
+  } else {
+    atencaoEl.innerHTML = naoCertificando.map(emp => {
+      const badges = [];
+      const s = emp.Setor.toUpperCase();
+      // ETIT
+      const etitV = parseVal(emp.ETIT);
+      const etitOk = metaOk(emp.ETIT, s, 'ETIT');
+      badges.push(`<span class="mini-badge ${etitOk ? 'ok' : 'fail'}">ETIT ${emp.ETIT}</span>`);
+      // DPA
+      const dpaOk = metaOk(emp.DPA, s, 'DPA', 'cert');
+      badges.push(`<span class="mini-badge ${dpaOk ? 'ok' : 'fail'}">DPA ${emp.DPA}</span>`);
+      // Assert
+      if (s !== 'EMPRESARIAL') {
+        const assOk = metaOk(emp.Assertividade, s, 'Assertividade');
+        badges.push(`<span class="mini-badge ${assOk ? 'ok' : 'fail'}">Assert. ${emp.Assertividade}</span>`);
+      }
+
+      return `<div class="emp-row">
+        <div class="emp-avatar red">${getInitials(emp.Nome)}</div>
+        <div class="emp-info">
+          <div class="emp-name-sm">${firstName(emp.Nome)} — ${emp.Setor}</div>
+          <div class="emp-detail">Aten&ccedil;&atilde;o: ${emp.problems.join(', ')}</div>
+          <div class="emp-badges">${badges.join('')}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// =============================================
+// Render Table (individual)
+// =============================================
+let currentFilter = 'TODOS';
+let currentSearch = '';
+let sortCol = null;
+let sortAsc = true;
+
+function renderTable() {
+  let data = employees.map(emp => {
+    const s = emp.Setor.toUpperCase();
+    return {
+      ...emp,
+      cert: isCertificando(emp),
+      etitOk: metaOk(emp.ETIT, s, 'ETIT'),
+      dpaOk: metaOk(emp.DPA, s, 'DPA', 'individual'),
+      assertOk: s === 'EMPRESARIAL' ? null : metaOk(emp.Assertividade, s, 'Assertividade'),
+      isAssertNA: s === 'EMPRESARIAL'
+    };
+  });
+
+  // Filter by setor
+  if (currentFilter !== 'TODOS') {
+    data = data.filter(d => d.Setor.toUpperCase() === currentFilter);
+  }
+
+  // Filter by name
+  if (currentSearch) {
+    const term = currentSearch.toLowerCase();
+    data = data.filter(d => d.Nome.toLowerCase().includes(term));
+  }
+
+  // Sort
+  if (sortCol) {
+    data.sort((a, b) => {
+      let va, vb;
+      if (sortCol === 'status') {
+        va = a.cert ? 1 : 0;
+        vb = b.cert ? 1 : 0;
+      } else if (['ETIT', 'DPA', 'Assertividade'].includes(sortCol)) {
+        va = parseVal(a[sortCol]);
+        vb = parseVal(b[sortCol]);
+        if (va === null) va = -1;
+        if (vb === null) vb = -1;
+      } else {
+        va = a[sortCol] || '';
+        vb = b[sortCol] || '';
+      }
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const tbody = document.getElementById('team-tbody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Nenhum resultado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(d => {
+    const etitClass = d.etitOk ? 'val-ok' : 'val-fail';
+    const dpaClass = d.dpaOk ? 'val-ok' : 'val-fail';
+    let assertClass = 'val-na';
+    if (!d.isAssertNA) assertClass = d.assertOk ? 'val-ok' : 'val-fail';
+
+    const etitDisplay = d.ETIT === '-' ? '<span class="val-na">-</span>' : `<span class="${etitClass}">${d.ETIT}</span>`;
+    const dpaDisplay = d.DPA === '-' ? '<span class="val-na">-</span>' : `<span class="${dpaClass}">${d.DPA}</span>`;
+    const assertDisplay = d.isAssertNA ? '<span class="val-na">N/A</span>'
+      : d.Assertividade === '-' ? '<span class="val-na">-</span>'
+      : `<span class="${assertClass}">${d.Assertividade}</span>`;
+
+    return `<tr>
+      <td><strong>${d.Nome}</strong></td>
+      <td>${d.Setor}</td>
+      <td>${etitDisplay}</td>
+      <td>${dpaDisplay}</td>
+      <td>${assertDisplay}</td>
+      <td><span class="status-pill ${d.cert ? 'cert' : 'not-cert'}">${d.cert ? 'Certificando' : 'N\u00e3o certif.'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// =============================================
+// Tabs
+// =============================================
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+// =============================================
+// Filters & Sort
+// =============================================
+function setupFilters() {
+  // Setor filter
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderTable();
+    });
+  });
+
+  // Search
+  document.getElementById('search-nome').addEventListener('input', e => {
+    currentSearch = e.target.value.trim();
+    renderTable();
+  });
+
+  // Table sort
+  document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (sortCol === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = col;
+        sortAsc = true;
+      }
+      // Update sort arrows
+      document.querySelectorAll('.sort-arrow').forEach(a => a.textContent = '');
+      th.querySelector('.sort-arrow').textContent = sortAsc ? ' ▲' : ' ▼';
+      renderTable();
+    });
+  });
+}
+
+// =============================================
+// Auth & Supabase
+// =============================================
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  document.getElementById('login-page').style.display = 'none';
   document.getElementById('config-alerta').style.display = 'block';
 } else {
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const loginSection = document.getElementById('login-section');
-  const uploadSection = document.getElementById('upload-section');
+  const loginPage = document.getElementById('login-page');
+  const dashboardPage = document.getElementById('dashboard-page');
   const loginError = document.getElementById('login-error');
 
-  // Verificar sessão ao carregar
+  function showDashboard(user) {
+    loginPage.style.display = 'none';
+    dashboardPage.style.display = 'block';
+    document.getElementById('user-info').textContent = user.email;
+    renderDashboard();
+    renderTable();
+    setupTabs();
+    setupFilters();
+  }
+
+  // Check session
   supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      mostrarUpload(session.user);
-    } else {
-      loginSection.style.display = 'block';
-    }
+    if (session) showDashboard(session.user);
   });
 
-  // Monitorar mudanças de auth
   supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
-      mostrarUpload(session.user);
+      showDashboard(session.user);
     } else {
-      loginSection.style.display = 'block';
-      uploadSection.style.display = 'none';
+      loginPage.style.display = 'block';
+      dashboardPage.style.display = 'none';
     }
   });
-
-  function mostrarUpload(user) {
-    loginSection.style.display = 'none';
-    uploadSection.style.display = 'block';
-    document.getElementById('user-info').textContent = 'Logado como: ' + user.email;
-  }
 
   // Login
   document.getElementById('login-btn').addEventListener('click', async () => {
     const email = document.getElementById('admin-email').value.trim();
     const password = document.getElementById('admin-password').value;
     loginError.textContent = '';
-
-    if (!email || !password) {
-      loginError.textContent = 'Preencha e-mail e senha.';
-      return;
-    }
-
+    if (!email || !password) { loginError.textContent = 'Preencha e-mail e senha.'; return; }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      loginError.textContent = 'Erro: e-mail ou senha inválidos.';
-    }
+    if (error) loginError.textContent = 'E-mail ou senha inválidos.';
   });
 
-  // Enter para login
   document.getElementById('admin-password').addEventListener('keypress', e => {
     if (e.key === 'Enter') document.getElementById('login-btn').click();
   });
@@ -60,7 +376,9 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     supabase.auth.signOut();
   });
 
-  // Limpar NaN/Infinity do JSON exportado por Python/Pandas
+  // =============================================
+  // Upload
+  // =============================================
   function limparJson(texto) {
     return texto
       .replace(/:\s*NaN/g, ': null')
@@ -68,7 +386,6 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       .replace(/:\s*-Infinity/g, ': null');
   }
 
-  // Upload de arquivo
   async function uploadArquivo(fileInputId, nomeArquivo, statusId, btnId) {
     const fileInput = document.getElementById(fileInputId);
     const statusEl = document.getElementById(statusId);
@@ -84,28 +401,16 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     statusEl.className = 'upload-status progress';
     statusEl.textContent = 'Lendo arquivo...';
 
-    const file = fileInput.files[0];
     const reader = new FileReader();
-
     reader.onload = async function(e) {
       try {
         const textoLimpo = limparJson(e.target.result);
         const dados = JSON.parse(textoLimpo);
-
-        if (!Array.isArray(dados)) {
-          throw new Error('O arquivo deve conter um array JSON [ {...}, {...} ]');
-        }
-
+        if (!Array.isArray(dados)) throw new Error('O arquivo deve conter um array JSON.');
         statusEl.textContent = 'Enviando ' + dados.length + ' registros...';
-
-        // Upload para Supabase Storage (upsert sobrescreve se já existir)
         const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
-        const { error } = await supabase.storage
-          .from('dados')
-          .upload(nomeArquivo, blob, { upsert: true });
-
+        const { error } = await supabase.storage.from('dados').upload(nomeArquivo, blob, { upsert: true });
         if (error) throw error;
-
         statusEl.className = 'upload-status success';
         statusEl.textContent = 'Upload concluído! ' + dados.length + ' registros enviados.';
         fileInput.value = '';
@@ -115,21 +420,17 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       }
       btn.disabled = false;
     };
-
     reader.onerror = function() {
       statusEl.className = 'upload-status error';
       statusEl.textContent = 'Erro ao ler o arquivo.';
       btn.disabled = false;
     };
-
-    reader.readAsText(file);
+    reader.readAsText(fileInput.files[0]);
   }
 
-  // Botões de upload
   document.getElementById('btn-upload-empresarial').addEventListener('click', () => {
     uploadArquivo('file-empresarial', 'dados_empresarial.json', 'status-empresarial', 'btn-upload-empresarial');
   });
-
   document.getElementById('btn-upload-residencial').addEventListener('click', () => {
     uploadArquivo('file-residencial', 'dados_residencial.json', 'status-residencial', 'btn-upload-residencial');
   });
