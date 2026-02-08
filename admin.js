@@ -359,12 +359,32 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
   // Login
   document.getElementById('login-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('login-btn');
     const email = document.getElementById('admin-email').value.trim();
     const password = document.getElementById('admin-password').value;
     loginError.textContent = '';
-    if (!email || !password) { loginError.textContent = 'Preencha e-mail e senha.'; return; }
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) loginError.textContent = 'E-mail ou senha inválidos.';
+
+    if (!email || !password) {
+      loginError.textContent = 'Preencha e-mail e senha.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        loginError.textContent = 'Erro: ' + error.message;
+      } else if (!data.session) {
+        loginError.textContent = 'Login falhou. Verifique suas credenciais.';
+      }
+    } catch (err) {
+      loginError.textContent = 'Erro de conexão: ' + err.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
   });
 
   document.getElementById('admin-password').addEventListener('keypress', e => {
