@@ -466,7 +466,6 @@ function renderEditsAnalysis() {
   html += '</div>';
 
   // Sector Comparison
-  const sectors = buildSectorStats();
   html += `<div class="edits-section">
     <div class="edits-section-title"><span class="icon sector">&#9878;</span> Compara&ccedil;&atilde;o por Setor</div>
     <div class="sector-compare">
