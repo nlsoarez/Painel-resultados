@@ -269,6 +269,341 @@ function renderTable() {
 }
 
 // =============================================
+// Edits Analysis - Cloud Data & Metrics
+// =============================================
+let dadosEmpresarial = [];
+let dadosResidencial = [];
+let editsFilterSetor = 'TODOS';
+let editsSortCol = 'total';
+let editsSortAsc = false;
+
+async function carregarDadosNuvemAdmin() {
+  if (typeof SUPABASE_URL === 'undefined' || !SUPABASE_URL) return;
+  const base = SUPABASE_URL + '/storage/v1/object/public/dados';
+  try {
+    const [respEmp, respRes] = await Promise.all([
+      fetch(base + '/dados_empresarial.json').then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch(base + '/dados_residencial.json').then(r => r.ok ? r.json() : []).catch(() => [])
+    ]);
+    dadosEmpresarial = respEmp;
+    dadosResidencial = respRes;
+  } catch(e) {
+    dadosEmpresarial = [];
+    dadosResidencial = [];
+  }
+}
+
+function buildAnalystMetrics() {
+  const metrics = {};
+  employees.forEach(emp => {
+    metrics[emp.Matricula] = {
+      matricula: emp.Matricula,
+      nome: emp.Nome,
+      setor: emp.Setor,
+      total: 0, ganhos: 0, perdidos: 0, pct: 0
+    };
+  });
+
+  dadosEmpresarial.forEach(inc => {
+    const login = (inc.LOGIN_ACIONOU || '').toString().toUpperCase();
+    if (metrics[login]) {
+      metrics[login].total++;
+      if (inc.INDICADOR === 1) metrics[login].ganhos++;
+      else metrics[login].perdidos++;
+    }
+  });
+
+  dadosResidencial.forEach(inc => {
+    const login = (inc.LOGIN_ACIONAMENTO || '').toString().toUpperCase();
+    if (metrics[login]) {
+      metrics[login].total++;
+      if (inc.INDICADOR === 1) metrics[login].ganhos++;
+      else metrics[login].perdidos++;
+    }
+  });
+
+  Object.values(metrics).forEach(m => {
+    m.pct = m.total > 0 ? Math.round((m.ganhos / m.total) * 100) : 0;
+  });
+
+  return Object.values(metrics);
+}
+
+function buildIndicatorBreakdown() {
+  const groups = {};
+  function process(data) {
+    data.forEach(inc => {
+      const nome = inc.INDICADOR_NOME || 'Sem Indicador';
+      if (!groups[nome]) groups[nome] = { total: 0, ganhos: 0, perdidos: 0 };
+      groups[nome].total++;
+      if (inc.INDICADOR === 1) groups[nome].ganhos++;
+      else groups[nome].perdidos++;
+    });
+  }
+  process(dadosEmpresarial);
+  process(dadosResidencial);
+  return Object.entries(groups).map(([nome, d]) => ({
+    nome, ...d, pct: d.total > 0 ? Math.round((d.ganhos / d.total) * 100) : 0
+  })).sort((a, b) => b.total - a.total);
+}
+
+function buildSectorStats() {
+  function calcSector(data) {
+    let total = 0, ganhos = 0, perdidos = 0;
+    data.forEach(inc => { total++; if (inc.INDICADOR === 1) ganhos++; else perdidos++; });
+    return { total, ganhos, perdidos, pct: total > 0 ? Math.round((ganhos / total) * 100) : 0 };
+  }
+  return {
+    empresarial: calcSector(dadosEmpresarial),
+    residencial: calcSector(dadosResidencial)
+  };
+}
+
+function pctBadgeClass(pct) {
+  if (pct >= 80) return 'high';
+  if (pct >= 60) return 'medium';
+  return 'low';
+}
+
+function rankClass(i) {
+  if (i === 0) return 'gold';
+  if (i === 1) return 'silver';
+  if (i === 2) return 'bronze';
+  return '';
+}
+
+function posClass(i) {
+  return 'p' + Math.min(i + 1, 5);
+}
+
+function renderEditsAnalysis() {
+  const contentEl = document.getElementById('edits-content');
+  const allMetrics = buildAnalystMetrics();
+  const totalEdits = allMetrics.reduce((s, m) => s + m.total, 0);
+  const totalGanhos = allMetrics.reduce((s, m) => s + m.ganhos, 0);
+  const totalPerdidos = allMetrics.reduce((s, m) => s + m.perdidos, 0);
+  const pctGeral = totalEdits > 0 ? Math.round((totalGanhos / totalEdits) * 100) : 0;
+
+  if (totalEdits === 0) {
+    contentEl.innerHTML = `<div class="edits-empty">
+      <p>Nenhum dado de edits encontrado</p>
+      <small>Fa&ccedil;a upload dos dados empresarial e/ou residencial na aba "Upload de Dados"</small>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+
+  // KPI Row
+  html += `<div class="edits-kpi-row">
+    <div class="edits-kpi-card total">
+      <div class="edits-kpi-number" style="color:var(--blue)">${totalEdits.toLocaleString('pt-BR')}</div>
+      <div class="edits-kpi-label">Total de Edits</div>
+    </div>
+    <div class="edits-kpi-card ganhos">
+      <div class="edits-kpi-number" style="color:var(--green)">${totalGanhos.toLocaleString('pt-BR')}</div>
+      <div class="edits-kpi-label">Edits Ganhos</div>
+    </div>
+    <div class="edits-kpi-card perdidos">
+      <div class="edits-kpi-number" style="color:var(--red)">${totalPerdidos.toLocaleString('pt-BR')}</div>
+      <div class="edits-kpi-label">Edits Perdidos</div>
+    </div>
+    <div class="edits-kpi-card pct">
+      <div class="edits-kpi-number" style="color:var(--orange)">${pctGeral}%</div>
+      <div class="edits-kpi-label">Ader&ecirc;ncia Geral</div>
+    </div>
+  </div>`;
+
+  // Top 5 Podium Cards
+  const byTotal = [...allMetrics].filter(m => m.total > 0).sort((a, b) => b.total - a.total);
+  const byGanhos = [...allMetrics].filter(m => m.ganhos > 0).sort((a, b) => b.ganhos - a.ganhos);
+  const byPerdidos = [...allMetrics].filter(m => m.perdidos > 0).sort((a, b) => b.perdidos - a.perdidos);
+  const byBestPct = [...allMetrics].filter(m => m.total >= 5).sort((a, b) => b.pct - a.pct || b.total - a.total);
+  const byWorstPct = [...allMetrics].filter(m => m.total >= 5).sort((a, b) => a.pct - b.pct || b.total - a.total);
+
+  function podiumCard(title, data, valueKey, colorClass, suffix) {
+    let items = data.slice(0, 5).map((m, i) => `
+      <div class="podium-item">
+        <div class="podium-pos ${posClass(i)}">${i + 1}</div>
+        <div class="podium-info">
+          <div class="podium-name">${firstName(m.nome)}</div>
+        </div>
+        <div class="podium-value ${colorClass}">${m[valueKey]}${suffix || ''}</div>
+      </div>`).join('');
+    if (data.length === 0) items = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">Sem dados</div>';
+    return `<div class="podium-card">
+      <div class="podium-title">${title}</div>
+      ${items}
+    </div>`;
+  }
+
+  html += '<div class="podium-grid">';
+  html += podiumCard('Maior Volume', byTotal, 'total', 'blue', '');
+  html += podiumCard('Mais Ganhos', byGanhos, 'ganhos', 'green', '');
+  html += podiumCard('Mais Perdas', byPerdidos, 'perdidos', 'red', '');
+  html += podiumCard('Melhor Ader&ecirc;ncia', byBestPct, 'pct', 'green', '%');
+  html += podiumCard('Pior Ader&ecirc;ncia', byWorstPct, 'pct', 'red', '%');
+  html += '</div>';
+
+  // Sector Comparison
+  const sectors = buildSectorStats();
+  html += `<div class="edits-section">
+    <div class="edits-section-title"><span class="icon sector">&#9878;</span> Compara&ccedil;&atilde;o por Setor</div>
+    <div class="sector-compare">
+      <div class="sector-card emp">
+        <h4>Empresarial</h4>
+        <div class="sector-stat-row"><span class="sector-stat-label">Total de Edits</span><span class="sector-stat-val">${sectors.empresarial.total.toLocaleString('pt-BR')}</span></div>
+        <div class="sector-stat-row"><span class="sector-stat-label">Ganhos</span><span class="sector-stat-val" style="color:var(--green)">${sectors.empresarial.ganhos.toLocaleString('pt-BR')}</span></div>
+        <div class="sector-stat-row"><span class="sector-stat-label">Perdidos</span><span class="sector-stat-val" style="color:var(--red)">${sectors.empresarial.perdidos.toLocaleString('pt-BR')}</span></div>
+        <div class="sector-stat-row"><span class="sector-stat-label">Ader&ecirc;ncia</span><span class="pct-badge ${pctBadgeClass(sectors.empresarial.pct)}">${sectors.empresarial.pct}%</span></div>
+      </div>
+      <div class="sector-card res">
+        <h4>Residencial</h4>
+        <div class="sector-stat-row"><span class="sector-stat-label">Total de Edits</span><span class="sector-stat-val">${sectors.residencial.total.toLocaleString('pt-BR')}</span></div>
+        <div class="sector-stat-row"><span class="sector-stat-label">Ganhos</span><span class="sector-stat-val" style="color:var(--green)">${sectors.residencial.ganhos.toLocaleString('pt-BR')}</span></div>
+        <div class="sector-stat-row"><span class="sector-stat-label">Perdidos</span><span class="sector-stat-val" style="color:var(--red)">${sectors.residencial.perdidos.toLocaleString('pt-BR')}</span></div>
+        <div class="sector-stat-row"><span class="sector-stat-label">Ader&ecirc;ncia</span><span class="pct-badge ${pctBadgeClass(sectors.residencial.pct)}">${sectors.residencial.pct}%</span></div>
+      </div>
+    </div>
+  </div>`;
+
+  // Full Ranking Table
+  html += `<div class="edits-section">
+    <div class="edits-section-title"><span class="icon vol">&#9776;</span> Ranking Completo da Equipe</div>
+    <div class="filter-bar">
+      <button class="filter-btn ${editsFilterSetor === 'TODOS' ? 'active' : ''}" data-edits-filter="TODOS">Todos</button>
+      <button class="filter-btn ${editsFilterSetor === 'EMPRESARIAL' ? 'active' : ''}" data-edits-filter="EMPRESARIAL">Empresarial</button>
+      <button class="filter-btn ${editsFilterSetor === 'RESIDENCIAL' ? 'active' : ''}" data-edits-filter="RESIDENCIAL">Residencial</button>
+    </div>
+    <div class="edits-table-wrapper">
+      <table class="edits-table" id="edits-ranking-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th data-edits-sort="nome">Nome <span class="sort-arrow"></span></th>
+            <th data-edits-sort="setor">Setor <span class="sort-arrow"></span></th>
+            <th data-edits-sort="total">Total <span class="sort-arrow"></span></th>
+            <th data-edits-sort="ganhos">Ganhos <span class="sort-arrow"></span></th>
+            <th data-edits-sort="perdidos">Perdidos <span class="sort-arrow"></span></th>
+            <th data-edits-sort="pct">Ader&ecirc;ncia <span class="sort-arrow"></span></th>
+            <th>Distribui&ccedil;&atilde;o</th>
+          </tr>
+        </thead>
+        <tbody id="edits-ranking-tbody"></tbody>
+      </table>
+    </div>
+  </div>`;
+
+  // Indicator Breakdown
+  const indBreakdown = buildIndicatorBreakdown();
+  if (indBreakdown.length > 0) {
+    html += `<div class="edits-section">
+      <div class="edits-section-title"><span class="icon group">&#9881;</span> Breakdown por Indicador</div>
+      <div class="edits-table-wrapper">
+        <table class="indicator-breakdown-table">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Total</th>
+              <th>Ganhos</th>
+              <th>Perdidos</th>
+              <th>Ader&ecirc;ncia</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${indBreakdown.map(g => `<tr>
+              <td><strong>${g.nome}</strong></td>
+              <td>${g.total.toLocaleString('pt-BR')}</td>
+              <td style="color:var(--green);font-weight:700">${g.ganhos.toLocaleString('pt-BR')}</td>
+              <td style="color:var(--red);font-weight:700">${g.perdidos.toLocaleString('pt-BR')}</td>
+              <td><span class="pct-badge ${pctBadgeClass(g.pct)}">${g.pct}%</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+
+  contentEl.innerHTML = html;
+  renderEditsRankingTable();
+  setupEditsInteractions();
+}
+
+function renderEditsRankingTable() {
+  let data = buildAnalystMetrics();
+
+  if (editsFilterSetor !== 'TODOS') {
+    data = data.filter(m => m.setor.toUpperCase() === editsFilterSetor);
+  }
+
+  data.sort((a, b) => {
+    let va, vb;
+    if (editsSortCol === 'nome') { va = a.nome; vb = b.nome; }
+    else if (editsSortCol === 'setor') { va = a.setor; vb = b.setor; }
+    else { va = a[editsSortCol]; vb = b[editsSortCol]; }
+    if (va < vb) return editsSortAsc ? -1 : 1;
+    if (va > vb) return editsSortAsc ? 1 : -1;
+    return 0;
+  });
+
+  const maxTotal = Math.max(...data.map(m => m.total), 1);
+  const tbody = document.getElementById('edits-ranking-tbody');
+  if (!tbody) return;
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">Nenhum resultado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map((m, i) => {
+    const greenW = m.total > 0 ? Math.round((m.ganhos / maxTotal) * 100) : 0;
+    const redW = m.total > 0 ? Math.round((m.perdidos / maxTotal) * 100) : 0;
+    return `<tr>
+      <td><span class="rank-num ${rankClass(i)}">${i + 1}</span></td>
+      <td><strong>${m.nome}</strong></td>
+      <td><span class="setor-badge-sm">${m.setor}</span></td>
+      <td style="font-weight:700">${m.total}</td>
+      <td style="color:var(--green);font-weight:700">${m.ganhos}</td>
+      <td style="color:var(--red);font-weight:700">${m.perdidos}</td>
+      <td><span class="pct-badge ${pctBadgeClass(m.pct)}">${m.pct}%</span></td>
+      <td class="bar-cell">
+        <div class="bar-track">
+          <div class="bar-fill-green" style="width:${greenW}%"></div>
+          <div class="bar-fill-red" style="width:${redW}%"></div>
+          ${m.total > 0 ? `<span class="bar-label">${m.ganhos}G / ${m.perdidos}P</span>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setupEditsInteractions() {
+  document.querySelectorAll('[data-edits-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-edits-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      editsFilterSetor = btn.dataset.editsFilter;
+      renderEditsRankingTable();
+    });
+  });
+
+  document.querySelectorAll('[data-edits-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.editsSort;
+      if (editsSortCol === col) {
+        editsSortAsc = !editsSortAsc;
+      } else {
+        editsSortCol = col;
+        editsSortAsc = col === 'nome' || col === 'setor';
+      }
+      document.querySelectorAll('#edits-ranking-table .sort-arrow').forEach(a => a.textContent = '');
+      th.querySelector('.sort-arrow').textContent = editsSortAsc ? ' \u25B2' : ' \u25BC';
+      renderEditsRankingTable();
+    });
+  });
+}
+
+// =============================================
 // Tabs
 // =============================================
 function setupTabs() {
@@ -278,6 +613,10 @@ function setupTabs() {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      // Render edits analysis when tab is selected
+      if (btn.dataset.tab === 'edits' && editsLoaded) {
+        renderEditsAnalysis();
+      }
     });
   });
 }
@@ -286,10 +625,10 @@ function setupTabs() {
 // Filters & Sort
 // =============================================
 function setupFilters() {
-  // Setor filter
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  // Setor filter (only individual tab filters, not edits filters)
+  document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentFilter = btn.dataset.filter;
       renderTable();
@@ -302,8 +641,8 @@ function setupFilters() {
     renderTable();
   });
 
-  // Table sort
-  document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+  // Table sort (individual table only)
+  document.querySelectorAll('#team-table th[data-sort]').forEach(th => {
     th.addEventListener('click', () => {
       const col = th.dataset.sort;
       if (sortCol === col) {
@@ -313,7 +652,7 @@ function setupFilters() {
         sortAsc = true;
       }
       // Update sort arrows
-      document.querySelectorAll('.sort-arrow').forEach(a => a.textContent = '');
+      document.querySelectorAll('#team-table .sort-arrow').forEach(a => a.textContent = '');
       th.querySelector('.sort-arrow').textContent = sortAsc ? ' ▲' : ' ▼';
       renderTable();
     });
@@ -333,6 +672,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   const dashboardPage = document.getElementById('dashboard-page');
   const loginError = document.getElementById('login-error');
 
+  let editsLoaded = false;
   function showDashboard(user) {
     loginPage.style.display = 'none';
     dashboardPage.style.display = 'block';
@@ -341,6 +681,15 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     renderTable();
     setupTabs();
     setupFilters();
+
+    // Pre-load cloud data for edits analysis
+    carregarDadosNuvemAdmin().then(() => {
+      editsLoaded = true;
+      // If edits tab is already active, render immediately
+      if (document.getElementById('panel-edits').classList.contains('active')) {
+        renderEditsAnalysis();
+      }
+    });
   }
 
   // Check session
