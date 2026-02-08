@@ -253,6 +253,28 @@ function buildIndicatorCard(label, valor, metaTexto, metaNum, isOk, isNa) {
   </div>`;
 }
 
+function calcularMetricasDeIncidentes(incidentes) {
+  const grupos = {};
+  incidentes.forEach(inc => {
+    const nome = (inc.INDICADOR_NOME || '').toUpperCase();
+    if (!grupos[nome]) grupos[nome] = { aderentes: 0, total: 0 };
+    grupos[nome].total++;
+    if (inc.INDICADOR === 1) grupos[nome].aderentes++;
+  });
+
+  let etit = null, dpa = null, assertividade = null;
+
+  for (const [nome, dados] of Object.entries(grupos)) {
+    if (dados.total === 0) continue;
+    const pct = Math.round((dados.aderentes / dados.total) * 100);
+    if (nome.includes('ETIT')) etit = pct;
+    else if (nome.includes('DPA')) dpa = pct;
+    else if (nome.includes('ASSERT')) assertividade = pct;
+  }
+
+  return { etit, dpa, assertividade };
+}
+
 function consultar() {
   const matricula = matriculaInput.value.trim().toUpperCase();
   resultadoDiv.innerHTML = "";
@@ -271,11 +293,23 @@ function consultar() {
 
   const setor = empregado.Setor.toUpperCase();
 
-  // Check indicators
-  const etitOk = considerarDentroMeta(empregado.ETIT, setor, "ETIT");
-  const assertividadeOk = setor === "EMPRESARIAL" ? null : considerarDentroMeta(empregado.Assertividade, setor, "Assertividade");
-  const dpaCertificando = considerarDentroMeta(empregado.DPA, setor, "DPA", "certificacao");
-  const dpaMetaIndividual = considerarDentroMeta(empregado.DPA, setor, "DPA", "individual");
+  // Buscar incidentes e calcular métricas dinâmicas
+  const incidentes = buscarIncidentes(matricula, setor);
+  const metricsCalc = calcularMetricasDeIncidentes(incidentes);
+
+  // Usar valores calculados quando o hardcoded for "-"
+  const etitVal = (empregado.ETIT === '-' && metricsCalc.etit !== null)
+    ? metricsCalc.etit + '%' : empregado.ETIT;
+  const dpaVal = (empregado.DPA === '-' && metricsCalc.dpa !== null)
+    ? metricsCalc.dpa + '%' : empregado.DPA;
+  const assertVal = (empregado.Assertividade === '-' && metricsCalc.assertividade !== null)
+    ? metricsCalc.assertividade + '%' : empregado.Assertividade;
+
+  // Check indicators com valores atualizados
+  const etitOk = considerarDentroMeta(etitVal, setor, "ETIT");
+  const assertividadeOk = setor === "EMPRESARIAL" ? null : considerarDentroMeta(assertVal, setor, "Assertividade");
+  const dpaCertificando = considerarDentroMeta(dpaVal, setor, "DPA", "certificacao");
+  const dpaMetaIndividual = considerarDentroMeta(dpaVal, setor, "DPA", "individual");
 
   const certificando = etitOk &&
                      (setor === "EMPRESARIAL" || assertividadeOk) &&
@@ -295,19 +329,48 @@ function consultar() {
     </div>
   </div>`;
 
-  // Indicator cards
+  // Indicator cards com valores dinâmicos
   html += '<div class="indicators-grid">';
-  html += buildIndicatorCard('ETIT', empregado.ETIT, `Meta ${etitMeta}%`, etitMeta, etitOk, false);
-  html += buildIndicatorCard('DPA', empregado.DPA, `Meta ${METAS.DPA.INDIVIDUAL}%`, METAS.DPA.INDIVIDUAL, dpaMetaIndividual, false);
+  html += buildIndicatorCard('ETIT', etitVal, `Meta ${etitMeta}%`, etitMeta, etitOk, false);
+  html += buildIndicatorCard('DPA', dpaVal, `Meta ${METAS.DPA.INDIVIDUAL}%`, METAS.DPA.INDIVIDUAL, dpaMetaIndividual, false);
   html += buildIndicatorCard(
     'Assertividade',
-    isAssertNA ? 'N/A' : empregado.Assertividade,
+    isAssertNA ? 'N/A' : assertVal,
     isAssertNA ? 'Não se aplica' : `Meta ${assertMeta}%`,
     assertMeta,
     isAssertNA ? true : assertividadeOk,
     isAssertNA
   );
   html += '</div>';
+
+  // Resumo de Edits do analista
+  if (incidentes.length > 0) {
+    const totalInc = incidentes.length;
+    const ganhos = incidentes.filter(i => i.INDICADOR === 1).length;
+    const perdidos = totalInc - ganhos;
+    const pctAd = Math.round((ganhos / totalInc) * 100);
+    html += `<div class="edits-resumo">
+      <div class="edits-resumo-title">Resumo de Edits</div>
+      <div class="edits-resumo-grid">
+        <div class="edits-resumo-item">
+          <div class="edits-resumo-num" style="color:var(--text)">${totalInc}</div>
+          <div class="edits-resumo-label">Total</div>
+        </div>
+        <div class="edits-resumo-item">
+          <div class="edits-resumo-num" style="color:var(--green)">${ganhos}</div>
+          <div class="edits-resumo-label">Ganhos</div>
+        </div>
+        <div class="edits-resumo-item">
+          <div class="edits-resumo-num" style="color:var(--red)">${perdidos}</div>
+          <div class="edits-resumo-label">Perdidos</div>
+        </div>
+        <div class="edits-resumo-item">
+          <div class="edits-resumo-num" style="color:var(--orange)">${pctAd}%</div>
+          <div class="edits-resumo-label">Ader&ecirc;ncia</div>
+        </div>
+      </div>
+    </div>`;
+  }
 
   // DPA warning
   if (!dpaMetaIndividual && dpaCertificando) {
@@ -322,7 +385,6 @@ function consultar() {
   resultadoDiv.innerHTML = html;
 
   // === Exibir detalhamento de incidentes ===
-  const incidentes = buscarIncidentes(matricula, setor);
   if (incidentes.length > 0) {
     const grupos = agruparPorIndicador(incidentes);
     resultadoDiv.insertAdjacentHTML('beforeend', renderSecaoIncidentes(grupos, setor));
