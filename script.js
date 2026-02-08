@@ -214,77 +214,100 @@ function handleKeyPress(event) {
   }
 }
 
+function getInitials(nome) {
+  const parts = nome.split(' ');
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return parts[0][0].toUpperCase();
+}
+
+function buildIndicatorCard(label, valor, metaTexto, metaNum, isOk, isNa) {
+  const status = isNa ? 'na' : (isOk ? 'ok' : 'fail');
+  const valorNum = parseIndicatorValue(valor);
+  const pct = (valorNum !== null && metaNum) ? Math.min(Math.round((valorNum / metaNum) * 100), 100) : 0;
+  const displayVal = isNa ? 'N/A' : formatarValor(valor);
+
+  let progressHtml = '';
+  if (!isNa && valorNum !== null && metaNum) {
+    progressHtml = `<div class="progress-track"><div class="progress-fill ${status}" style="width:${pct}%"></div></div>`;
+  }
+
+  return `<div class="indicator-card ${status}">
+    <div class="indicator-label">${label}</div>
+    <div class="indicator-value-row">
+      <span class="indicator-big ${status}">${displayVal}</span>
+      <span class="indicator-meta">${metaTexto}</span>
+    </div>
+    ${progressHtml}
+  </div>`;
+}
+
 function consultar() {
   const matricula = matriculaInput.value.trim().toUpperCase();
   resultadoDiv.innerHTML = "";
-  
+
   if (!matricula) {
     resultadoDiv.innerHTML = "<p class='error'>Por favor, digite uma matrícula.</p>";
     return;
   }
 
   const empregado = employeeLookup[matricula];
-  
+
   if (!empregado) {
     resultadoDiv.innerHTML = "<p class='error'>Matrícula não encontrada.</p>";
     return;
   }
 
   const setor = empregado.Setor.toUpperCase();
-  
+
   // Check indicators
   const etitOk = considerarDentroMeta(empregado.ETIT, setor, "ETIT");
   const assertividadeOk = setor === "EMPRESARIAL" ? null : considerarDentroMeta(empregado.Assertividade, setor, "Assertividade");
   const dpaCertificando = considerarDentroMeta(empregado.DPA, setor, "DPA", "certificacao");
   const dpaMetaIndividual = considerarDentroMeta(empregado.DPA, setor, "DPA", "individual");
-  
-  // Para certificação, Assertividade não conta para EMPRESARIAL
-  const certificando = etitOk && 
-                     (setor === "EMPRESARIAL" || assertividadeOk) && 
+
+  const certificando = etitOk &&
+                     (setor === "EMPRESARIAL" || assertividadeOk) &&
                      dpaCertificando;
-  
-  const mensagemDPA = !dpaMetaIndividual && dpaCertificando ? 
-    '<div class="meta-warning">Certificando, mas abaixo da meta individual (90%)</div>' : 
-    '';
 
-  // Format Assertividade display differently for EMPRESARIAL
-  const assertividadeDisplay = setor === "EMPRESARIAL" ?
-    `<div class="indicator-row">
-      <span class="indicator-name">Assertividade:</span>
-      <span class="indicator-value not-applicable">N/A</span>
-      <span class="meta-value">(Não se aplica)</span>
-    </div>` :
-    `<div class="indicator-row">
-      <span class="indicator-name">Assertividade:</span>
-      <span class="indicator-value ${assertividadeOk ? '' : 'warning'}">${formatarValor(empregado.Assertividade)}</span>
-      <span class="meta-value">(Meta: ${definirMeta(setor, "Assertividade")}%)</span>
-    </div>`;
+  const initials = getInitials(empregado.Nome);
+  const etitMeta = definirMeta(setor, "ETIT");
+  const assertMeta = definirMeta(setor, "Assertividade");
+  const isAssertNA = setor === "EMPRESARIAL";
 
-  // Display results
-  resultadoDiv.innerHTML = 
-    `<div class="employee-info">
-      <h2>${empregado.Nome}</h2>
-      <p><strong>Setor:</strong> ${empregado.Setor}</p>
+  // Employee header
+  let html = `<div class="employee-header">
+    <div class="employee-avatar">${initials}</div>
+    <div class="employee-details">
+      <div class="employee-name">${empregado.Nome}</div>
+      <span class="employee-setor">${empregado.Setor}</span>
     </div>
-    
-    <div class="indicator-row">
-      <span class="indicator-name">ETIT:</span>
-      <span class="indicator-value ${etitOk ? '' : 'warning'}">${formatarValor(empregado.ETIT)}</span>
-      <span class="meta-value">(Meta: ${definirMeta(setor, "ETIT")}%)</span>
-    </div>
-    
-    ${assertividadeDisplay}
-    
-    <div class="indicator-row dpa-info">
-      <span class="indicator-name">DPA:</span>
-      <span class="indicator-value ${dpaMetaIndividual ? '' : 'warning'}">${formatarValor(empregado.DPA)}</span>
-      <span class="meta-value">(Meta Individual: ${METAS.DPA.INDIVIDUAL}%, Certificação: ${METAS.DPA.CERTIFICACAO}%)</span>
-    </div>
-    ${mensagemDPA}
-    
-    <div class="certification ${certificando ? 'success' : 'warning'}">
-      ${certificando ? '✅ Certificando' : '❌ Não certificando'}
-    </div>`;
+  </div>`;
+
+  // Indicator cards
+  html += '<div class="indicators-grid">';
+  html += buildIndicatorCard('ETIT', empregado.ETIT, `Meta ${etitMeta}%`, etitMeta, etitOk, false);
+  html += buildIndicatorCard('DPA', empregado.DPA, `Meta ${METAS.DPA.INDIVIDUAL}%`, METAS.DPA.INDIVIDUAL, dpaMetaIndividual, false);
+  html += buildIndicatorCard(
+    'Assertividade',
+    isAssertNA ? 'N/A' : empregado.Assertividade,
+    isAssertNA ? 'Não se aplica' : `Meta ${assertMeta}%`,
+    assertMeta,
+    isAssertNA ? true : assertividadeOk,
+    isAssertNA
+  );
+  html += '</div>';
+
+  // DPA warning
+  if (!dpaMetaIndividual && dpaCertificando) {
+    html += '<div class="meta-warning">Certificando, mas abaixo da meta individual de DPA (90%)</div>';
+  }
+
+  // Certification banner
+  html += `<div class="cert-banner ${certificando ? 'success' : 'warning'}">
+    ${certificando ? '&#10003; Certificando' : '&#10007; Não certificando'}
+  </div>`;
+
+  resultadoDiv.innerHTML = html;
 
   // === Exibir detalhamento de incidentes ===
   const incidentes = buscarIncidentes(matricula, setor);
