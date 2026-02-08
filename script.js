@@ -191,14 +191,19 @@ function renderSecaoIncidentes(grupos, setor) {
       </div>`;
 
     if (totalNao > 0) {
-      html += '<div class="incidentes-nao-aderentes">';
-      html += '<p class="incidentes-subtitulo">Incidentes Não Aderentes:</p>';
+      const toggleId = 'toggle-' + indicador.replace(/\s+/g, '-');
+      html += `<div class="incidentes-nao-aderentes">
+        <button class="incidentes-toggle" onclick="toggleIncidentes('${toggleId}')" aria-expanded="false" aria-controls="${toggleId}">
+          <span>Ver incidentes não aderentes (${totalNao})</span>
+          <svg class="toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="incidentes-lista" id="${toggleId}">`;
       dados.naoAderentes.forEach(inc => {
         html += setor === 'EMPRESARIAL'
           ? renderIncidenteEmpresarial(inc)
           : renderIncidenteResidencial(inc);
       });
-      html += '</div>';
+      html += '</div></div>';
     }
 
     html += '</div>';
@@ -206,6 +211,13 @@ function renderSecaoIncidentes(grupos, setor) {
 
   html += '</div>';
   return html;
+}
+
+function toggleIncidentes(id) {
+  const lista = document.getElementById(id);
+  const btn = lista.previousElementSibling;
+  const isOpen = lista.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen);
 }
 
 function handleKeyPress(event) {
