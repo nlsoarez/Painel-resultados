@@ -273,6 +273,7 @@ function renderTable() {
 // =============================================
 let dadosEmpresarial = [];
 let dadosResidencial = [];
+let editsLoaded = false;
 let editsFilterSetor = 'TODOS';
 let editsSortCol = 'total';
 let editsSortAsc = false;
@@ -672,7 +673,6 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   const dashboardPage = document.getElementById('dashboard-page');
   const loginError = document.getElementById('login-error');
 
-  let editsLoaded = false;
   function showDashboard(user) {
     loginPage.style.display = 'none';
     dashboardPage.style.display = 'block';
