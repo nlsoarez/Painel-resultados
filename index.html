@@ -6,24 +6,23 @@
     <meta name="description" content="Sistema de consulta de indicadores da Claro">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <title>Consulta de Indicadores - Claro</title>
 </head>
 <body>
-    <div class="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-inner">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Claro.svg"
-                     alt="Logo Claro" class="logo" loading="lazy">
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo" aria-label="Claro">claro</div>
+            <div class="header-text">
                 <h1>Consulta de Indicadores</h1>
                 <p class="header-subtitle">Acompanhe seus resultados de performance</p>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- Search -->
-        <main class="main">
+    <main class="main">
+        <div class="container">
             <div class="search-card">
                 <label for="matricula" class="sr-only">Matrícula</label>
                 <div class="search-row">
@@ -41,15 +40,13 @@
                 </div>
             </div>
 
-            <!-- Results -->
             <div id="resultado" class="resultado" aria-live="polite"></div>
-        </main>
+        </div>
+    </main>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <span>Atualizado em <strong id="data-atualizacao">05/02</strong></span>
-        </footer>
-    </div>
+    <footer class="footer">
+        <span>Atualizado em <strong id="data-atualizacao">05/02</strong></span>
+    </footer>
 
     <script src="config.js"></script>
     <script src="script.js"></script>
