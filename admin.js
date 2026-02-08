@@ -271,6 +271,17 @@ function renderTable() {
 // =============================================
 // Edits Analysis - Cloud Data & Metrics
 // =============================================
+// Mapeamento de matrículas alternativas por analista
+const ALIAS_MATRICULAS = {
+  'N6173055': ['N6105010']  // Jefferson usa N6105010 para ETIT
+};
+
+// Mapa reverso: matrícula alias -> matrícula principal
+const ALIAS_REVERSO = {};
+Object.entries(ALIAS_MATRICULAS).forEach(([principal, aliases]) => {
+  aliases.forEach(a => { ALIAS_REVERSO[a.toUpperCase()] = principal; });
+});
+
 let dadosEmpresarial = [];
 let dadosResidencial = [];
 let editsLoaded = false;
@@ -305,8 +316,13 @@ function buildAnalystMetrics() {
     };
   });
 
+  function resolveLogin(login) {
+    const up = (login || '').toString().toUpperCase();
+    return ALIAS_REVERSO[up] || up;
+  }
+
   dadosEmpresarial.forEach(inc => {
-    const login = (inc.LOGIN_ACIONOU || '').toString().toUpperCase();
+    const login = resolveLogin(inc.LOGIN_ACIONOU);
     if (metrics[login]) {
       metrics[login].total++;
       if (inc.INDICADOR === 1) metrics[login].ganhos++;
@@ -315,7 +331,7 @@ function buildAnalystMetrics() {
   });
 
   dadosResidencial.forEach(inc => {
-    const login = (inc.LOGIN_ACIONAMENTO || '').toString().toUpperCase();
+    const login = resolveLogin(inc.LOGIN_ACIONAMENTO);
     if (metrics[login]) {
       metrics[login].total++;
       if (inc.INDICADOR === 1) metrics[login].ganhos++;

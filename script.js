@@ -94,6 +94,12 @@ function formatarValor(valor) {
 
 // === NOVA CAMADA DE DADOS - INCIDENTES (Supabase Storage) ===
 
+// Mapeamento de matrículas alternativas por analista
+// Chave = matrícula principal, Valor = array de matrículas extras nos dados de incidentes
+const ALIAS_MATRICULAS = {
+  'N6173055': ['N6105010']  // Jefferson usa N6105010 para ETIT
+};
+
 // Dados carregados da nuvem
 let dadosEmpresarial = [];
 let dadosResidencial = [];
@@ -116,8 +122,11 @@ function carregarDadosNuvem() {
 function buscarIncidentes(matricula, setor) {
   const dados = setor === 'EMPRESARIAL' ? dadosEmpresarial : dadosResidencial;
   const campoLogin = setor === 'EMPRESARIAL' ? 'LOGIN_ACIONOU' : 'LOGIN_ACIONAMENTO';
+  const matriculaUp = matricula.toUpperCase();
+  const aliases = ALIAS_MATRICULAS[matriculaUp] || [];
+  const allMatriculas = [matriculaUp, ...aliases.map(a => a.toUpperCase())];
   return dados.filter(d =>
-    d[campoLogin] && d[campoLogin].toString().toUpperCase() === matricula.toUpperCase()
+    d[campoLogin] && allMatriculas.includes(d[campoLogin].toString().toUpperCase())
   );
 }
 
