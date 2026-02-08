@@ -396,11 +396,46 @@ body {
 
 .incidentes-nao-aderentes { margin-top: 12px; }
 
-.incidentes-subtitulo {
-  font-size: 12px;
-  font-weight: 600;
+.incidentes-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm);
   color: var(--red);
-  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.incidentes-toggle:hover { background: rgba(239, 68, 68, 0.12); }
+
+.toggle-chevron {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.incidentes-toggle[aria-expanded="true"] .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+.incidentes-lista {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.incidentes-lista.open {
+  max-height: 2000px;
+  margin-top: 10px;
 }
 
 .incidente-card {
