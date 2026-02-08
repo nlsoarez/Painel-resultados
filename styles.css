@@ -340,6 +340,49 @@ body {
   text-align: center;
 }
 
+/* === EDITS SUMMARY === */
+.edits-resumo {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px;
+}
+
+.edits-resumo-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.edits-resumo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+
+.edits-resumo-num {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.edits-resumo-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
 /* === INCIDENTS SECTION === */
 .incidentes-section { margin-top: 4px; }
 
@@ -584,6 +627,19 @@ body {
   .indicator-meta { font-size: 13px; }
 
   .progress-track { height: 8px; margin-top: 14px; }
+
+  /* Edits Summary */
+  .edits-resumo {
+    padding: 22px 28px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+
+  .edits-resumo-title { font-size: 13px; }
+
+  .edits-resumo-num { font-size: 28px; }
+
+  .edits-resumo-label { font-size: 11px; }
 
   /* Cert Banner */
   .cert-banner {
