@@ -396,9 +396,12 @@ function posClass(i) {
 function renderEditsAnalysis() {
   const contentEl = document.getElementById('edits-content');
   const allMetrics = buildAnalystMetrics();
-  const totalEdits = allMetrics.reduce((s, m) => s + m.total, 0);
-  const totalGanhos = allMetrics.reduce((s, m) => s + m.ganhos, 0);
-  const totalPerdidos = allMetrics.reduce((s, m) => s + m.perdidos, 0);
+  const sectors = buildSectorStats();
+
+  // KPIs = soma real de TODOS os registros dos JSONs
+  const totalEdits = sectors.empresarial.total + sectors.residencial.total;
+  const totalGanhos = sectors.empresarial.ganhos + sectors.residencial.ganhos;
+  const totalPerdidos = sectors.empresarial.perdidos + sectors.residencial.perdidos;
   const pctGeral = totalEdits > 0 ? Math.round((totalGanhos / totalEdits) * 100) : 0;
 
   if (totalEdits === 0) {
