@@ -353,17 +353,9 @@ function consultar() {
     html += '<div class="meta-warning">Certificando, mas abaixo da meta individual de DPA (90%)</div>';
   }
 
-  // Certification banner + data de última atualização
-  let dataAtualizacao = '';
-  if (incidentes.length > 0) {
-    const datas = incidentes
-      .map(i => i.DT_ACIONAMENTO ? new Date(i.DT_ACIONAMENTO) : null)
-      .filter(d => d && !isNaN(d.getTime()));
-    if (datas.length > 0) {
-      const maisRecente = new Date(Math.max(...datas.map(d => d.getTime())));
-      dataAtualizacao = maisRecente.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    }
-  }
+  // Certification banner + data de última atualização (from footer element)
+  const dataAtualizacaoEl = document.getElementById('data-atualizacao');
+  const dataAtualizacao = dataAtualizacaoEl ? dataAtualizacaoEl.textContent : '';
 
   html += `<div class="cert-banner ${certificando ? 'success' : 'warning'}">
     ${certificando ? '&#10003; Certificando' : '&#10007; N\u00e3o certificando'}
