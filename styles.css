@@ -328,6 +328,13 @@ body {
   border: 1px solid var(--red-border);
 }
 
+.cert-ref {
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
 .meta-warning {
   font-size: 12px;
   font-weight: 500;
@@ -355,10 +362,17 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-secondary);
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.edits-resumo-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
   margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
-  text-align: center;
 }
 
 .edits-resumo-grid {

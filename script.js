@@ -348,14 +348,31 @@ function consultar() {
   );
   html += '</div>';
 
-  // Resumo de Edits do analista
+  // DPA warning
+  if (!dpaMetaIndividual && dpaCertificando) {
+    html += '<div class="meta-warning">Certificando, mas abaixo da meta individual de DPA (90%)</div>';
+  }
+
+  // Certification banner + data de referência
+  const agora = new Date();
+  const mesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+  const nomeMes = mesAnterior.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+  const mesRef = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+
+  html += `<div class="cert-banner ${certificando ? 'success' : 'warning'}">
+    ${certificando ? '&#10003; Certificando' : '&#10007; N\u00e3o certificando'}
+    <div class="cert-ref">Refer\u00eancia: ${mesRef}</div>
+  </div>`;
+
+  // Resumo de ETITs do analista
   if (incidentes.length > 0) {
     const totalInc = incidentes.length;
     const ganhos = incidentes.filter(i => i.INDICADOR === 1).length;
     const perdidos = totalInc - ganhos;
     const pctAd = Math.round((ganhos / totalInc) * 100);
     html += `<div class="edits-resumo">
-      <div class="edits-resumo-title">Resumo de Edits</div>
+      <div class="edits-resumo-title">Resumo de ETITs</div>
+      <div class="edits-resumo-subtitle">Refer\u00eancia: ${mesRef}</div>
       <div class="edits-resumo-grid">
         <div class="edits-resumo-item">
           <div class="edits-resumo-num" style="color:var(--text)">${totalInc}</div>
@@ -371,21 +388,11 @@ function consultar() {
         </div>
         <div class="edits-resumo-item">
           <div class="edits-resumo-num" style="color:var(--orange)">${pctAd}%</div>
-          <div class="edits-resumo-label">Ader&ecirc;ncia</div>
+          <div class="edits-resumo-label">Ader\u00eancia</div>
         </div>
       </div>
     </div>`;
   }
-
-  // DPA warning
-  if (!dpaMetaIndividual && dpaCertificando) {
-    html += '<div class="meta-warning">Certificando, mas abaixo da meta individual de DPA (90%)</div>';
-  }
-
-  // Certification banner
-  html += `<div class="cert-banner ${certificando ? 'success' : 'warning'}">
-    ${certificando ? '&#10003; Certificando' : '&#10007; Não certificando'}
-  </div>`;
 
   resultadoDiv.innerHTML = html;
 
