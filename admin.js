@@ -265,7 +265,7 @@ function renderTable() {
 }
 
 // =============================================
-// Edits Analysis - Cloud Data & Metrics
+// ETIT's Analysis - Cloud Data & Metrics
 // =============================================
 // Mapeamento de matrículas alternativas por analista
 const ALIAS_MATRICULAS = {
@@ -342,7 +342,7 @@ function buildAnalystMetrics() {
   return Object.values(metrics);
 }
 
-function buildIndicatorBreakdown() {
+function buildIndicatorBreakdown(sectorFilter) {
   const groups = {};
   function process(data) {
     data.forEach(inc => {
@@ -353,8 +353,8 @@ function buildIndicatorBreakdown() {
       else groups[nome].perdidos++;
     });
   }
-  process(dadosEmpresarial);
-  process(dadosResidencial);
+  if (!sectorFilter || sectorFilter === 'TODOS' || sectorFilter === 'EMPRESARIAL') process(dadosEmpresarial);
+  if (!sectorFilter || sectorFilter === 'TODOS' || sectorFilter === 'RESIDENCIAL') process(dadosResidencial);
   return Object.entries(groups).map(([nome, d]) => ({
     nome, ...d, pct: d.total > 0 ? Math.round((d.ganhos / d.total) * 100) : 0
   })).sort((a, b) => b.total - a.total);
@@ -394,35 +394,60 @@ function renderEditsAnalysis() {
   const allMetrics = buildAnalystMetrics();
   const sectors = buildSectorStats();
 
-  // KPIs = soma real de TODOS os registros dos JSONs
-  const totalEdits = sectors.empresarial.total + sectors.residencial.total;
-  const totalGanhos = sectors.empresarial.ganhos + sectors.residencial.ganhos;
-  const totalPerdidos = sectors.empresarial.perdidos + sectors.residencial.perdidos;
+  // KPIs based on selected sector view
+  let totalEdits, totalGanhos, totalPerdidos;
+  if (editsFilterSetor === 'EMPRESARIAL') {
+    totalEdits = sectors.empresarial.total;
+    totalGanhos = sectors.empresarial.ganhos;
+    totalPerdidos = sectors.empresarial.perdidos;
+  } else if (editsFilterSetor === 'RESIDENCIAL') {
+    totalEdits = sectors.residencial.total;
+    totalGanhos = sectors.residencial.ganhos;
+    totalPerdidos = sectors.residencial.perdidos;
+  } else {
+    totalEdits = sectors.empresarial.total + sectors.residencial.total;
+    totalGanhos = sectors.empresarial.ganhos + sectors.residencial.ganhos;
+    totalPerdidos = sectors.empresarial.perdidos + sectors.residencial.perdidos;
+  }
   const pctGeral = totalEdits > 0 ? Math.round((totalGanhos / totalEdits) * 100) : 0;
 
-  if (totalEdits === 0) {
-    contentEl.innerHTML = `<div class="edits-empty">
-      <p>Nenhum dado de edits encontrado</p>
-      <small>Fa&ccedil;a upload dos dados empresarial e/ou residencial na aba "Upload de Dados"</small>
-    </div>`;
-    return;
-  }
+  // Filter metrics for podiums based on selected view
+  const filteredMetrics = editsFilterSetor === 'TODOS'
+    ? allMetrics
+    : allMetrics.filter(m => m.setor.toUpperCase() === editsFilterSetor);
 
   let html = '';
+
+  // Top filter bar
+  html += `<div class="filter-bar" style="margin-bottom:20px">
+    <button class="filter-btn ${editsFilterSetor === 'TODOS' ? 'active' : ''}" data-edits-filter="TODOS">Todos</button>
+    <button class="filter-btn ${editsFilterSetor === 'EMPRESARIAL' ? 'active' : ''}" data-edits-filter="EMPRESARIAL">Empresarial</button>
+    <button class="filter-btn ${editsFilterSetor === 'RESIDENCIAL' ? 'active' : ''}" data-edits-filter="RESIDENCIAL">Residencial</button>
+  </div>`;
+
+  if (totalEdits === 0) {
+    html += `<div class="edits-empty">
+      <p>Nenhum dado de ETIT's encontrado</p>
+      <small>Fa&ccedil;a upload dos dados empresarial e/ou residencial na aba "Upload de Dados"</small>
+    </div>`;
+    contentEl.innerHTML = html;
+    setupEditsInteractions();
+    return;
+  }
 
   // KPI Row
   html += `<div class="edits-kpi-row">
     <div class="edits-kpi-card total">
       <div class="edits-kpi-number" style="color:var(--blue)">${totalEdits.toLocaleString('pt-BR')}</div>
-      <div class="edits-kpi-label">Total de Edits</div>
+      <div class="edits-kpi-label">Total de ETIT's</div>
     </div>
     <div class="edits-kpi-card ganhos">
       <div class="edits-kpi-number" style="color:var(--green)">${totalGanhos.toLocaleString('pt-BR')}</div>
-      <div class="edits-kpi-label">Edits Ganhos</div>
+      <div class="edits-kpi-label">ETIT's Ganhos</div>
     </div>
     <div class="edits-kpi-card perdidos">
       <div class="edits-kpi-number" style="color:var(--red)">${totalPerdidos.toLocaleString('pt-BR')}</div>
-      <div class="edits-kpi-label">Edits Perdidos</div>
+      <div class="edits-kpi-label">ETIT's Perdidos</div>
     </div>
     <div class="edits-kpi-card pct">
       <div class="edits-kpi-number" style="color:var(--orange)">${pctGeral}%</div>
@@ -430,12 +455,12 @@ function renderEditsAnalysis() {
     </div>
   </div>`;
 
-  // Top 5 Podium Cards
-  const byTotal = [...allMetrics].filter(m => m.total > 0).sort((a, b) => b.total - a.total);
-  const byGanhos = [...allMetrics].filter(m => m.ganhos > 0).sort((a, b) => b.ganhos - a.ganhos);
-  const byPerdidos = [...allMetrics].filter(m => m.perdidos > 0).sort((a, b) => b.perdidos - a.perdidos);
-  const byBestPct = [...allMetrics].filter(m => m.total >= 5).sort((a, b) => b.pct - a.pct || b.total - a.total);
-  const byWorstPct = [...allMetrics].filter(m => m.total >= 5).sort((a, b) => a.pct - b.pct || b.total - a.total);
+  // Top 5 Podium Cards (filtered by sector)
+  const byTotal = [...filteredMetrics].filter(m => m.total > 0).sort((a, b) => b.total - a.total);
+  const byGanhos = [...filteredMetrics].filter(m => m.ganhos > 0).sort((a, b) => b.ganhos - a.ganhos);
+  const byPerdidos = [...filteredMetrics].filter(m => m.perdidos > 0).sort((a, b) => b.perdidos - a.perdidos);
+  const byBestPct = [...filteredMetrics].filter(m => m.total >= 5).sort((a, b) => b.pct - a.pct || b.total - a.total);
+  const byWorstPct = [...filteredMetrics].filter(m => m.total >= 5).sort((a, b) => a.pct - b.pct || b.total - a.total);
 
   function podiumCard(title, data, valueKey, colorClass, suffix) {
     let items = data.slice(0, 5).map((m, i) => `
@@ -461,35 +486,32 @@ function renderEditsAnalysis() {
   html += podiumCard('Pior Ader&ecirc;ncia', byWorstPct, 'pct', 'red', '%');
   html += '</div>';
 
-  // Sector Comparison
-  html += `<div class="edits-section">
-    <div class="edits-section-title"><span class="icon sector">&#9878;</span> Compara&ccedil;&atilde;o por Setor</div>
-    <div class="sector-compare">
-      <div class="sector-card emp">
-        <h4>Empresarial</h4>
-        <div class="sector-stat-row"><span class="sector-stat-label">Total de Edits</span><span class="sector-stat-val">${sectors.empresarial.total.toLocaleString('pt-BR')}</span></div>
-        <div class="sector-stat-row"><span class="sector-stat-label">Ganhos</span><span class="sector-stat-val" style="color:var(--green)">${sectors.empresarial.ganhos.toLocaleString('pt-BR')}</span></div>
-        <div class="sector-stat-row"><span class="sector-stat-label">Perdidos</span><span class="sector-stat-val" style="color:var(--red)">${sectors.empresarial.perdidos.toLocaleString('pt-BR')}</span></div>
-        <div class="sector-stat-row"><span class="sector-stat-label">Ader&ecirc;ncia</span><span class="pct-badge ${pctBadgeClass(sectors.empresarial.pct)}">${sectors.empresarial.pct}%</span></div>
+  // Sector Comparison - only when viewing all sectors
+  if (editsFilterSetor === 'TODOS') {
+    html += `<div class="edits-section">
+      <div class="edits-section-title"><span class="icon sector">&#9878;</span> Compara&ccedil;&atilde;o por Setor</div>
+      <div class="sector-compare">
+        <div class="sector-card emp">
+          <h4>Empresarial</h4>
+          <div class="sector-stat-row"><span class="sector-stat-label">Total de ETIT's</span><span class="sector-stat-val">${sectors.empresarial.total.toLocaleString('pt-BR')}</span></div>
+          <div class="sector-stat-row"><span class="sector-stat-label">Ganhos</span><span class="sector-stat-val" style="color:var(--green)">${sectors.empresarial.ganhos.toLocaleString('pt-BR')}</span></div>
+          <div class="sector-stat-row"><span class="sector-stat-label">Perdidos</span><span class="sector-stat-val" style="color:var(--red)">${sectors.empresarial.perdidos.toLocaleString('pt-BR')}</span></div>
+          <div class="sector-stat-row"><span class="sector-stat-label">Ader&ecirc;ncia</span><span class="pct-badge ${pctBadgeClass(sectors.empresarial.pct)}">${sectors.empresarial.pct}%</span></div>
+        </div>
+        <div class="sector-card res">
+          <h4>Residencial</h4>
+          <div class="sector-stat-row"><span class="sector-stat-label">Total de ETIT's</span><span class="sector-stat-val">${sectors.residencial.total.toLocaleString('pt-BR')}</span></div>
+          <div class="sector-stat-row"><span class="sector-stat-label">Ganhos</span><span class="sector-stat-val" style="color:var(--green)">${sectors.residencial.ganhos.toLocaleString('pt-BR')}</span></div>
+          <div class="sector-stat-row"><span class="sector-stat-label">Perdidos</span><span class="sector-stat-val" style="color:var(--red)">${sectors.residencial.perdidos.toLocaleString('pt-BR')}</span></div>
+          <div class="sector-stat-row"><span class="sector-stat-label">Ader&ecirc;ncia</span><span class="pct-badge ${pctBadgeClass(sectors.residencial.pct)}">${sectors.residencial.pct}%</span></div>
+        </div>
       </div>
-      <div class="sector-card res">
-        <h4>Residencial</h4>
-        <div class="sector-stat-row"><span class="sector-stat-label">Total de Edits</span><span class="sector-stat-val">${sectors.residencial.total.toLocaleString('pt-BR')}</span></div>
-        <div class="sector-stat-row"><span class="sector-stat-label">Ganhos</span><span class="sector-stat-val" style="color:var(--green)">${sectors.residencial.ganhos.toLocaleString('pt-BR')}</span></div>
-        <div class="sector-stat-row"><span class="sector-stat-label">Perdidos</span><span class="sector-stat-val" style="color:var(--red)">${sectors.residencial.perdidos.toLocaleString('pt-BR')}</span></div>
-        <div class="sector-stat-row"><span class="sector-stat-label">Ader&ecirc;ncia</span><span class="pct-badge ${pctBadgeClass(sectors.residencial.pct)}">${sectors.residencial.pct}%</span></div>
-      </div>
-    </div>
-  </div>`;
+    </div>`;
+  }
 
   // Full Ranking Table
   html += `<div class="edits-section">
     <div class="edits-section-title"><span class="icon vol">&#9776;</span> Ranking Completo da Equipe</div>
-    <div class="filter-bar">
-      <button class="filter-btn ${editsFilterSetor === 'TODOS' ? 'active' : ''}" data-edits-filter="TODOS">Todos</button>
-      <button class="filter-btn ${editsFilterSetor === 'EMPRESARIAL' ? 'active' : ''}" data-edits-filter="EMPRESARIAL">Empresarial</button>
-      <button class="filter-btn ${editsFilterSetor === 'RESIDENCIAL' ? 'active' : ''}" data-edits-filter="RESIDENCIAL">Residencial</button>
-    </div>
     <div class="edits-table-wrapper">
       <table class="edits-table" id="edits-ranking-table">
         <thead>
@@ -509,8 +531,8 @@ function renderEditsAnalysis() {
     </div>
   </div>`;
 
-  // Indicator Breakdown
-  const indBreakdown = buildIndicatorBreakdown();
+  // Indicator Breakdown (filtered by sector)
+  const indBreakdown = buildIndicatorBreakdown(editsFilterSetor);
   if (indBreakdown.length > 0) {
     html += `<div class="edits-section">
       <div class="edits-section-title"><span class="icon group">&#9881;</span> Breakdown por Indicador</div>
@@ -595,10 +617,8 @@ function renderEditsRankingTable() {
 function setupEditsInteractions() {
   document.querySelectorAll('[data-edits-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-edits-filter]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
       editsFilterSetor = btn.dataset.editsFilter;
-      renderEditsRankingTable();
+      renderEditsAnalysis();
     });
   });
 
