@@ -376,6 +376,10 @@ function consultar() {
     const ganhos = incidentes.filter(i => i.INDICADOR === 1).length;
     const perdidos = totalInc - ganhos;
     const pctAd = Math.round((ganhos / totalInc) * 100);
+    const agora = new Date();
+    const mesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+    const nomeMes = mesAnterior.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+    const mesRef = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
     html += `<div class="edits-resumo">
       <div class="edits-resumo-title">Resumo de ETITs</div>
       <div class="edits-resumo-subtitle">Refer\u00eancia: ${mesRef}</div>
