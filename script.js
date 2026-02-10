@@ -353,15 +353,21 @@ function consultar() {
     html += '<div class="meta-warning">Certificando, mas abaixo da meta individual de DPA (90%)</div>';
   }
 
-  // Certification banner + data de referência
-  const agora = new Date();
-  const mesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
-  const nomeMes = mesAnterior.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-  const mesRef = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+  // Certification banner + data de última atualização
+  let dataAtualizacao = '';
+  if (incidentes.length > 0) {
+    const datas = incidentes
+      .map(i => i.DT_ACIONAMENTO ? new Date(i.DT_ACIONAMENTO) : null)
+      .filter(d => d && !isNaN(d.getTime()));
+    if (datas.length > 0) {
+      const maisRecente = new Date(Math.max(...datas.map(d => d.getTime())));
+      dataAtualizacao = maisRecente.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+  }
 
   html += `<div class="cert-banner ${certificando ? 'success' : 'warning'}">
     ${certificando ? '&#10003; Certificando' : '&#10007; N\u00e3o certificando'}
-    <div class="cert-ref">Refer\u00eancia: ${mesRef}</div>
+    ${dataAtualizacao ? `<div class="cert-ref">Atualizado em ${dataAtualizacao}</div>` : ''}
   </div>`;
 
   // Resumo de ETITs do analista
