@@ -13,12 +13,9 @@ const employees = [
   { "Matricula": "N5926003", "Nome": "SUELLEN HERNANDEZ DA SILVA", "Setor": "EMPRESARIAL", "ETIT": "67%", "DPA": "-", "Assertividade": "-" },
   { "Matricula": "N5932064", "Nome": "MONICA DA SILVA RODRIGUES", "Setor": "EMPRESARIAL", "ETIT": "100%", "DPA": "46%", "Assertividade": "-" },
   { "Matricula": "N0238475", "Nome": "MARLEY MARQUES RIBEIRO", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "75%", "Assertividade": "-" },
-  { "Matricula": "N5923221", "Nome": "KELLY PINHEIRO LIRA", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "-", "Assertividade": "-" },
   { "Matricula": "N5772086", "Nome": "THIAGO PEREIRA DA SILVA", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "81%", "Assertividade": "100%" },
   { "Matricula": "N0239871", "Nome": "LEONARDO FERREIRA LIMA DE ALMEIDA", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "72%", "Assertividade": "100%" },
   { "Matricula": "N5577565", "Nome": "MARISTELLA MARCIA DOS SANTOS", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "58%", "Assertividade": "100%" },
-  { "Matricula": "N5972428", "Nome": "CRISTIANE HERMOGENES DA SILVA", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "-", "Assertividade": "-" },
-  { "Matricula": "N4014011", "Nome": "ALAN MARINHO DIAS", "Setor": "RESIDENCIAL", "ETIT": "-", "DPA": "-", "Assertividade": "-" },
   { "Matricula": "F106664", "Nome": "RAISSA LIMA DE OLIVEIRA", "Setor": "RESIDENCIAL", "ETIT": "100%", "DPA": "78%", "Assertividade": "75%" }
 ];
 // Cache DOM elements
